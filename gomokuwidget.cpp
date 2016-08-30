@@ -81,12 +81,23 @@ void GomokuWidget::paintEvent(QPaintEvent *event)
             mMap[i][j].paint(&painter, point, mPawnWidth);
         }
     }
+
+    // draw hint
+    painter.save();
+    for (auto& hint: hintList) {
+        QPointF point = Map::positionForPoint(hint, this->rect());
+        QPen pen(Qt::red);
+//        pen.setWidth(5);
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawEllipse(point, pawnWidth, pawnWidth);
+    }
+    painter.restore();
 }
 
 void GomokuWidget::resizeEvent(QResizeEvent *event)
 {
     resize(event->size().height(), event->size().height());
-    updateGeometry();
 }
 
 
@@ -105,14 +116,19 @@ void GomokuWidget::positionPawn(QPoint position)
 {
     mMap[position.x()][position.y()].setState(current);
 
-    qDebug() << "current" << current << "win?" << hasWon();
+    if (hasWon()) {
+        qDebug() << "winner!" << current;
+    }
 
     // flip
-    if (current == Pawn::BLACK) {
-        current = Pawn::WHITE;
-    } else {
-        current = Pawn::BLACK;
+    hintList = hint();
+    if (hintList.size() != 0)
+        qDebug() << "hint for " << current;
+    for (auto& point: hintList) {
+        qDebug() << point;
     }
+    current = flip(current);
+
     update();
 
 }
@@ -212,4 +228,197 @@ bool GomokuWidget::hasWon()
     }
 
     return false;
+}
+
+QList<QPoint> GomokuWidget::hint()
+{
+    QList<QPoint> list;
+    for (int i = 0; i < 15; i++) {
+        for (int j = 0; j < 15; j++) {
+            // iterate through all empty position
+            if (mMap[i][j].state() == Pawn::NONE) {
+                mMap[i][j].setState(current); // temp
+
+                if (test(QPoint(i, j))) {
+                    list.append(QPoint(i, j));
+                }
+                mMap[i][j].setState(Pawn::NONE);
+            }
+        }
+    }
+
+    return list;
+}
+
+int GomokuWidget::goodDirections(QPoint position)
+{
+    if (position.x() < 0 || position.y() < 0 || position.x() > 14 || position.y() > 14) {
+        return 0;
+    }
+    if (mMap[position.x()][position.y()].state() != current) {
+        return 0;
+    }
+
+
+    int result = 0;
+    int count, obs;
+
+    // horizontal
+    count = 1;
+    obs = 0;
+    int x = position.x() + 1;
+    while (x < 15 && mMap[x][position.y()].state() == current) {
+        count ++;
+        x++;
+    }
+    if (x > 14 || mMap[x][position.y()].state() == flip(current)) {
+        obs++;
+    }
+    x = position.x() - 1;
+    while (x >= 0 && mMap[x][position.y()].state() == current) {
+        count ++;
+        x--;
+    }
+    if (x < 0 || mMap[x][position.y()].state() == flip(current)) {
+        obs++;
+    }
+    if ((count == 3 && obs==0) || (count > 3 && obs <= 1)) {
+//        qDebug() << "horizontal";
+        result = result | HORIZONTAL;
+    }
+
+
+    // vertical
+    count = 1;
+    obs = 0;
+    int y = position.y() + 1;
+    while (y < 15 && mMap[position.x()][y].state() == current) {
+        count ++;
+        y++;
+    }
+    if (y > 14 || mMap[position.x()][y].state() == flip(current)) {
+        obs++;
+    }
+    y = position.y() - 1;
+    while (y >= 0 && mMap[position.x()][y].state() == current) {
+        count ++;
+        y--;
+    }
+    if (y < 0 || mMap[position.x()][y].state() == flip(current)) {
+        obs++;
+    }
+    if ((count == 3 && obs==0) || (count > 3 && obs <= 1)) {
+//        qDebug() << "vertical";
+        result = result | VERTICAL;
+    }
+
+    // ltop <--> rbottom
+    count = 1;
+    obs = 0;
+    x = position.x() + 1;
+    y = position.y() +1;
+    while (x < 15 && y < 15 && mMap[x][y].state() == current) {
+        count ++;
+        x++;
+        y++;
+    }
+    if (x > 14 || y > 14 || mMap[x][y].state() == flip(current)) {
+        obs++;
+    }
+    x = position.x() - 1;
+    y = position.y() - 1;
+    while (x >= 0 && y >= 0 && mMap[x][y].state() == current) {
+        count ++;
+        x--;
+        y--;
+    }
+    if (x < 0 || y < 0 || mMap[x][y].state() == flip(current)) {
+        obs++;
+    }
+    if ((count == 3 && obs==0) || (count > 3 && obs <= 1)) {
+//        qDebug() << "cross";
+        result = result | CROSS;
+    }
+
+    // rtop <--> lbottom
+    count = 1;
+    obs = 0;
+    x = position.x() + 1;
+    y = position.y() - 1;
+    while (x < 15 && y >= 0 && mMap[x][y].state() == current) {
+        count ++;
+        x++;
+        y--;
+    }
+    if (x > 14 || y < 0 || mMap[x][y].state() == flip(current)) {
+        obs++;
+    }
+    x = position.x() - 1;
+    y = position.y() + 1;
+    while (x >= 0 && y < 15 && mMap[x][y].state() == current) {
+        count ++;
+        x--;
+        y++;
+    }
+    if (x < 0 || y >14 || mMap[x][y].state() == flip(current)) {
+        obs++;
+    }
+    if ((count == 3 && obs==0) || (count > 3 && obs <= 1)) {
+
+        result = result | BACK_CROSS;
+    }
+//    qDebug() << "current:" << current << "result:" << result;
+    return result;
+}
+
+bool GomokuWidget::test(QPoint position)
+{
+    int result = 0;
+
+    result = result | goodDirections(position);
+//    if (result > 0) qDebug() << QString::number(result, 2);
+//    result = result | goodDirections(QPoint(position.x()-1, position.y()-1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x(), position.y()-1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()+1, position.y()-1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()+1, position.y()));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()+1, position.y()+1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x(), position.y()+1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()-1, position.y()+1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()-1, position.y()));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+
+    int rrr = result;
+    unsigned int c =0 ;
+    while (rrr >0)
+    {
+        if((rrr &1) ==1) // 当前位是1
+            ++c ; // 计数器加1
+        rrr >>=1 ; // 移位
+    }
+    if (c>=2)
+    qDebug() << "current:" << position << "r:" << QString::number(result, 2);
+    return c >= 2;
+}
+
+Pawn::State GomokuWidget::flip(Pawn::State state) {
+    if (state == Pawn::BLACK) {
+        return Pawn::WHITE;
+    } else {
+        return Pawn::BLACK;
+    }
 }

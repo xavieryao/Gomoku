@@ -29,6 +29,9 @@ public:
 
     QPoint pointForPosition();
 
+signals:
+    void win(Pawn::State color);
+
 private:
     Map mMap;
     qreal mPawnWidth = 0;
@@ -37,6 +40,17 @@ private:
 
     void positionPawn(QPoint position);
     bool hasWon();
+    bool test(QPoint position);
+    Pawn::State flip(Pawn::State state);
+    QList<QPoint> hint();
+    int goodDirections(QPoint position);
+
+    const int HORIZONTAL = 1;
+    const int VERTICAL = HORIZONTAL << 1;
+    const int CROSS = VERTICAL << 1;
+    const int BACK_CROSS = CROSS << 1;
+
+    QList<QPoint> hintList;
 };
 
 #endif // GOMOKUWIDGET_H
