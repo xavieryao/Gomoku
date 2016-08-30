@@ -13,9 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        gomokuwidget.cpp
+        gomokuwidget.cpp \
+    pawn.cpp
 
-HEADERS  += gomokuwidget.h
+HEADERS  += gomokuwidget.h \
+    pawn.h
 
 RESOURCES += \
     res.qrc
