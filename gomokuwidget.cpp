@@ -373,10 +373,34 @@ int GomokuWidget::goodDirections(QPoint position)
 
 bool GomokuWidget::test(QPoint position)
 {
-    /*
     int result = 0;
 
     result = result | goodDirections(position);
+//    if (result > 0) qDebug() << QString::number(result, 2);
+//    result = result | goodDirections(QPoint(position.x()-1, position.y()-1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x(), position.y()-1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()+1, position.y()-1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()+1, position.y()));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()+1, position.y()+1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x(), position.y()+1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()-1, position.y()+1));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
+//    result = result | goodDirections(QPoint(position.x()-1, position.y()));
+//    if (result > 0) qDebug() << QString::number(result, 2);
+
 
     int rrr = result;
     unsigned int c =0 ;
@@ -386,35 +410,9 @@ bool GomokuWidget::test(QPoint position)
             ++c ; // 计数器加1
         rrr >>=1 ; // 移位
     }
-    if (c>=2) {
-
-    }
-
+    if (c>=2)
+    qDebug() << "current:" << position << "r:" << QString::number(result, 2);
     return c >= 2;
-    */
-
-    // Brute force!!!!
-    for (int i = 0; i < 15; i++) {
-        for (int j = 0; j < 15; j++) {
-            if (mMap[i][j].state() == Pawn::NONE) {
-                mMap[i][j].setState(current);
-                int result = goodDirections(QPoint(i, j));
-                int rrr = result;
-                unsigned int c =0 ;
-                while (rrr >0)
-                {
-                    if((rrr &1) ==1) // 当前位是1
-                        ++c ; // 计数器加1
-                    rrr >>=1 ; // 移位
-                }
-                if (c >= 2) {
-                    mMap[i][j].setState(Pawn::NONE);
-                    return true;
-                }
-                mMap[i][j].setState(Pawn::NONE);
-            }
-        }
-    }
 }
 
 Pawn::State GomokuWidget::flip(Pawn::State state) {
