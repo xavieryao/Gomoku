@@ -98,12 +98,118 @@ void GomokuWidget::mouseReleaseEvent(QMouseEvent *event)
     if (clicked == QPoint(-1, -1)) {
         return;
     }
-    if (black) {
-        mMap[clicked.x()][clicked.y()].setState(Pawn::BLACK);
-        black = !black;
+    positionPawn(clicked);
+}
+
+void GomokuWidget::positionPawn(QPoint position)
+{
+    mMap[position.x()][position.y()].setState(current);
+
+    qDebug() << "current" << current << "win?" << hasWon();
+
+    // flip
+    if (current == Pawn::BLACK) {
+        current = Pawn::WHITE;
     } else {
-        mMap[clicked.x()][clicked.y()].setState(Pawn::WHITE);
-        black = !black;
+        current = Pawn::BLACK;
     }
     update();
+
+}
+
+bool GomokuWidget::hasWon()
+{
+    int count = 0;
+    // horizontal
+    for (int i = 0; i < 15; i++) {
+        for (int j = 0; j < 15; j++) {
+            if (mMap[i][j].state() == current) {
+                count++;
+                if (count == 5) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+        }
+    }
+
+    // vertical
+    count = 0;
+    for (int j = 0; j < 15; j++) {
+        for (int i = 0; i < 15; i++) {
+            if (mMap[i][j].state() == current) {
+                count++;
+                if (count == 5) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+        }
+    }
+
+    // ltop <-> rbottom
+    count = 0;
+    for (int i = 0; i < 15; i++) {
+        int x = i;
+        for (int y = 0; y < 15 && x < 15; y++, x++) {
+            if (mMap[x][y].state() == current) {
+                count++;
+                if (count == 5) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+        }
+    }
+
+    count = 0;
+    for (int i = 0; i < 15; i++) {
+        int y = i;
+        for (int x = 0; x < 15 && y < 15; y++, x++) {
+            if (mMap[x][y].state() == current) {
+                count++;
+                if (count == 5) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+        }
+    }
+
+    // rtop <-> lbottom
+    count = 0;
+    for (int i = 14; i >= 0; i--) {
+        int x = i;
+        for (int y = 0; y <=14 && x>=0; y++, x--) {
+            if (mMap[x][y].state() == current) {
+                count++;
+                if (count == 5) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+        }
+    }
+
+    count = 0;
+    for (int i = 0; i < 15; i++) {
+        int y = i;
+        for (int x = 14; x >= 0 && y < 15; y++, x--) {
+            if (mMap[x][y].state() == current) {
+                count++;
+                if (count == 5) {
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
+        }
+    }
+
+    return false;
 }

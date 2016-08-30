@@ -11,9 +11,6 @@
 class Map : public QVector<QVector<Pawn> >{
 public:
     Map(){
-        qDebug() << "map";
-
-        qDebug() << "size" << this->size();
     }
 
     static QPointF positionForPoint(QPoint pos, const QRectF & rect)

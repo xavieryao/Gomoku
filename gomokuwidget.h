@@ -33,7 +33,10 @@ private:
     Map mMap;
     qreal mPawnWidth = 0;
 
-    bool black = false;
+    Pawn::State current = Pawn::WHITE;
+
+    void positionPawn(QPoint position);
+    bool hasWon();
 };
 
 #endif // GOMOKUWIDGET_H
