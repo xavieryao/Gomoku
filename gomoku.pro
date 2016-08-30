@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     pawn.cpp
 
 HEADERS  += gomokuwidget.h \
-    pawn.h
+    pawn.h \
+    map.h
 
 RESOURCES += \
     res.qrc

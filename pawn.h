@@ -1,32 +1,26 @@
 #ifndef PAWN_H
 #define PAWN_H
 
-#include <QGraphicsItem>
 #include <QRectF>
 #include <QPixmap>
-#include <QGraphicsView>
-#include "gomokuwidget.h"
+#include <QPainter>
 
-class Pawn : public QGraphicsItem
+class Pawn
 {
 public:
-    Pawn(qreal width, GomokuWidget* view);
+    Pawn();
 
-    enum Color {
-        BLACK, WHITE
+    enum State {
+        NONE, BLACK, WHITE
     };
 
-    Color color() const;
-    void setColor(const Color &color);
+    State state() const;
+    void setState(const State &color);
+    void paint(QPainter* painter, QPointF& point, qreal& radius);
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
+    int x,y;
 private:
-    Color mColor;
-    qreal width;
-    QPixmap mBlackPix, mWhitePix;
-    GomokuWidget* mView;
+    State mState = NONE;
 };
 
 #endif // PAWN_H

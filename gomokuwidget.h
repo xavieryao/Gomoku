@@ -8,6 +8,8 @@
 #include <QPoint>
 #include <QPaintEvent>
 #include <QMouseEvent>
+#include <QPixmap>
+#include "map.h"
 
 class GomokuWidget : public QWidget
 {
@@ -25,11 +27,13 @@ public:
     bool hasHeightForWidth() const {return true;}
     int heightForWidth(int w) const {return w;}
 
-    QPointF pointForPos(int x, int y);
+    QPoint pointForPosition();
 
 private:
-    qreal pawnWidth;
+    Map mMap;
+    qreal mPawnWidth = 0;
 
+    bool black = false;
 };
 
 #endif // GOMOKUWIDGET_H

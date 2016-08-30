@@ -7,7 +7,10 @@
 GomokuWidget::GomokuWidget(QWidget *parent)
     : QWidget(parent)
 {
-
+    for (int i = 0; i < 15; i++) {
+        QVector<Pawn> vec(15);
+        mMap.append(vec);
+    }
 }
 
 GomokuWidget::~GomokuWidget()
@@ -19,7 +22,6 @@ void GomokuWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     QRectF wholeRect = this->rect();
-    qDebug() << "drawBackground";
     // paint wooden texture
     painter.setPen(Qt::NoPen);
     QPixmap bg(":/img/wood_texture");
@@ -55,16 +57,30 @@ void GomokuWidget::paintEvent(QPaintEvent *event)
 
     // draw point
     qreal radius = blockWidth*0.13;
+    painter.save();
     painter.setBrush(Qt::black);
+    painter.setRenderHint(QPainter::Antialiasing);
 
     for (int i = 3; i <= 12; i+= 4) {
         for (int j = 3; j <=12; j+=4) {
-            QPointF point = pointForPos(i, j);
+            QPointF point = Map::positionForPoint(QPoint(i, j), this->rect());
             painter.drawEllipse(point, radius, radius);
         }
     }
+    painter.restore();
 
-    pawnWidth = blockWidth*0.4;
+    // draw pawn
+    qreal pawnWidth = blockWidth*0.4;
+    if (pawnWidth != mPawnWidth) {
+        mPawnWidth = pawnWidth;
+    }
+
+    for (int i = 0; i < 15; i++) {
+        for (int j = 0; j < 15; j++) {
+            QPointF point = Map::positionForPoint(QPoint(i,j), this->rect());
+            mMap[i][j].paint(&painter, point, mPawnWidth);
+        }
+    }
 }
 
 void GomokuWidget::resizeEvent(QResizeEvent *event)
@@ -73,19 +89,21 @@ void GomokuWidget::resizeEvent(QResizeEvent *event)
     updateGeometry();
 }
 
-QPointF GomokuWidget::pointForPos(int x, int y)
-{
 
-    qreal startX = rect().topLeft().x() + rect().width()*0.05;
-    qreal startY = rect().topLeft().y() + rect().height()*0.05;
-    qreal width = rect().width()*0.9/14;
-    qreal height = rect().height()*0.9/14;
-    return QPoint(startX + width*x, startY + height*y);
-}
 
 void GomokuWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    qDebug() << "mouse release";
-    Pawn* p = new Pawn(pawnWidth, this);
-    p->setColor(Pawn::Color::BLACK);
+//    mMap[3][5].setState(Pawn::BLACK);
+    QPoint clicked = Map::pointForPosition(event->pos(), this->rect());
+    if (clicked == QPoint(-1, -1)) {
+        return;
+    }
+    if (black) {
+        mMap[clicked.x()][clicked.y()].setState(Pawn::BLACK);
+        black = !black;
+    } else {
+        mMap[clicked.x()][clicked.y()].setState(Pawn::WHITE);
+        black = !black;
+    }
+    update();
 }

@@ -2,43 +2,34 @@
 #include <QPainter>
 #include <QDebug>
 
-Pawn::Pawn(qreal width, GomokuWidget* view) :
-    QGraphicsItem(0),
-    mView(view),
-    width(width)
+Pawn::Pawn()
 {
-    mBlackPix = QPixmap(width, width);
-    mBlackPix.load(":/black");
-
-    mWhitePix = QPixmap(width, width);
-    mWhitePix.load(":/white");
 }
 
-Pawn::Color Pawn::color() const
+Pawn::State Pawn::state() const
 {
-    return mColor;
+    return mState;
 }
 
-void Pawn::setColor(const Pawn::Color &color)
+void Pawn::setState(const Pawn::State &state)
 {
-    mColor = color;
+    mState = state;
 }
 
-QRectF Pawn::boundingRect() const
+void Pawn::paint(QPainter *painter, QPointF& point, qreal& radius)
 {
-    qDebug() << "bounding rect";
-
-    return QRectF(-width/2, -width/2,
-                  width/2, width/2);
-}
-
-void Pawn::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    qDebug() << "paint pawn";
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(Qt::black);
-
-//    painter->drawPixmap(pos(), mBlackPix);
-    qDebug() << pos();
-    painter->drawEllipse(mView->pointForPos(10, 10), 10, 10);
+    if (mState != Pawn::NONE) {
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        if (mState == Pawn::WHITE) {
+            painter->setBrush(Qt::white);
+            painter->setPen(Qt::black);
+            painter->drawEllipse(point, radius, radius);
+        } else {
+            painter->setBrush(Qt::black);
+            painter->setPen(Qt::black);
+            painter->drawEllipse(point, radius, radius);
+        }
+        painter->restore();
+    }
 }
