@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QRectF>
 #include <QResizeEvent>
+#include <QPoint>
 
 class GomokuWidget : public QGraphicsView
 {
@@ -24,6 +25,8 @@ public:
 
 private:
     QGraphicsScene* mScene;
+
+    QPointF pointForPos(int x, int y, const QRectF &rect);
 };
 
 #endif // GOMOKUWIDGET_H
