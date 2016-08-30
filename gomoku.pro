@@ -16,3 +16,6 @@ SOURCES += main.cpp\
         gomokuwidget.cpp
 
 HEADERS  += gomokuwidget.h
+
+RESOURCES += \
+    res.qrc

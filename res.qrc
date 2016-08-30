@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/img">
+        <file alias="wood_texture">res/woodtexture7.jpg</file>
+    </qresource>
+</RCC>
