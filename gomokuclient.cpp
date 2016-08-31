@@ -21,6 +21,7 @@ void GomokuClient::start()
         quit();
     });
 
+    connect(this, &QObject::destroyed, this, &GomokuClient::quit);
 }
 
 QString& GomokuClient::getServer()
@@ -35,7 +36,6 @@ void GomokuClient::setServer(const QString &value)
 
 void GomokuClient::quit()
 {
-    // TODO need some clean up.
     if (socket) {
         socket.data()->disconnectFromHost();
         socket.data()->close();

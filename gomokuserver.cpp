@@ -19,20 +19,26 @@ void GomokuServer::start()
        emit error(mServer.data()->errorString());
        quit();
     });
+
+    connect(this, &QObject::destroyed, this, &GomokuServer::quit);
+
 }
 
 void GomokuServer::quit()
 {
-    qDebug() << "onThreadFinished";
+    qDebug() << "clean up server";
     if (mServer) {
         mServer.data()->close();
         mServer.data()->deleteLater();
     }
 
     if (mSocket) {
+        mSocket.data()->disconnectFromHost();
         mSocket.data()->close();
         mSocket.data()->deleteLater();
     }
+
+    this->deleteLater();
 }
 
 void GomokuServer::onNewConnection()

@@ -41,7 +41,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     centralLayout->addWidget(sideBar, 4);
     setCentralWidget(centralWidget);
     resize(600, 360);
-
 }
 
 void MainWindow::setupServer(QWidget *serverWidget)
@@ -56,24 +55,36 @@ void MainWindow::setupServer(QWidget *serverWidget)
     connect(startServer, &QPushButton::clicked, [=]{
 
         statusLabel->setText("");
-        if (!server) {
-            server = new GomokuServer();
+        if (server) {
+            server.data()->quit();
         }
+        server = new GomokuServer();
         connect(server.data(), &GomokuServer::error, [=](const QString error){
 //            cancel->setEnabled(true);
             statusLabel->setText(error);
             startServer->setText(tr("Start Server"));
             startServer->setEnabled(true);
+            cancel->setEnabled(false);
         });
         connect(server.data(), &GomokuServer::socketCreated, [=](const QString client){
             statusLabel->setText(tr("Client %1 Connected.").arg(client));
-            cancel->setEnabled(true);
             startServer->setText(tr("Connected"));
         });
         startServer->setText(tr("Listening..."));
         startServer->setEnabled(false);
+        cancel->setEnabled(true);
         server.data()->start();
 
+    });
+
+    connect(cancel, &QPushButton::clicked, [=]{
+        if (server) {
+            server.data()->quit();
+        }
+        startServer->setText(tr("Start Server"));
+        startServer->setEnabled(true);
+        statusLabel->setText("");
+        cancel->setEnabled(false);
     });
 
     layout->addWidget(ipLabel);
