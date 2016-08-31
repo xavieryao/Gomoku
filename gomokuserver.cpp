@@ -50,4 +50,12 @@ void GomokuServer::onNewConnection()
         qInfo() << "disconnected.";
         deleteLater();
     });
+
+    // DEBUG
+    qInfo() << "send debug data";
+    QString header = "YaoProtocol\n%1\n";
+    QString msg = "{\"msgType\":\"move\", \"x\":3, \"y\":5}\n";
+    header = header.arg(msg.toUtf8().size());
+    QString towrite = header + msg;
+    mSocket->write(towrite.toUtf8());
 }

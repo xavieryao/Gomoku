@@ -2,6 +2,7 @@
 #define GOMOKUCLIENT_H
 
 #include <QtNetwork>
+#include "protocolserializer.h"
 
 class GomokuClient : public QObject
 {
@@ -17,6 +18,7 @@ public:
 private:
     QString server;
     QPointer<QTcpSocket> socket;
+    ProtocolSerializer* serializer;
 
 signals:
     void connected();
