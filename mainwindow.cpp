@@ -21,6 +21,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QWidget* sideBar = new QWidget(this);
     QVBoxLayout* lay = new QVBoxLayout(this);
     mTab = new QTabWidget(this);
+    connect(mTab, &QTabWidget::currentChanged, [=](int index){
+        if (lockTab && index!=lockTab-1) {
+            QMessageBox::information(this, tr("Can't Change Tab"), tr("You cannot change C/S mode while connected."));
+            mTab->setCurrentIndex(lockTab - 1);
+        }
+    });
+
     sideBar->setLayout(lay);
 
     mServerSerializer = new ProtocolSerializer(this);
@@ -84,6 +91,8 @@ void MainWindow::setupServer()
         mServer = new GomokuServer();
         mServer->setSerializer(mServerSerializer);
 
+        lockTab = 1;
+
         connect(mServer, &GomokuAbsHost::nextGame, [=] {
             qDebug() << "hide";
             mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr(true)));
@@ -102,6 +111,7 @@ void MainWindow::setupServer()
             startServer->setText(tr("Start Server"));
             startServer->setEnabled(true);
             cancel->setEnabled(false);
+            lockTab = 0;
         });
         connect(mServer.data(), &GomokuServer::connected, [=](const QString peer){
             statusLabel->setText(tr("Client %1 Connected.").arg(peer));
@@ -115,6 +125,7 @@ void MainWindow::setupServer()
             }
             connect(gomoku, &GomokuWidget::move, mServer, &GomokuServer::sendMove);
             connect(mServer, &GomokuServer::newMove, gomoku, &GomokuWidget::positionPawn);
+            lockTab = 1;
         });
 
         connect(mServer.data(), &GomokuServer::disconnected, [=]{
@@ -128,6 +139,7 @@ void MainWindow::setupServer()
             if (cancel) {
                 cancel->setEnabled(false);
             }
+            lockTab = 0;
         });
         startServer->setText(tr("Listening..."));
         startServer->setEnabled(false);
@@ -144,6 +156,7 @@ void MainWindow::setupServer()
         startServer->setEnabled(true);
         statusLabel->setText("");
         cancel->setEnabled(false);
+        lockTab = 0;
     });
 
     nextBtn->setVisible(false);
@@ -190,9 +203,9 @@ void MainWindow::setupClient()
         mClient = new GomokuClient(serverIp->text());
         mClient->setSerializer(mClientSerializer);
 
+        lockTab = 0;
 
         connect(mClient, &GomokuAbsHost::nextGame, [=] {
-            qDebug() << "hide";
             nextBtn->setVisible(false);
             mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr(true)));
             if (gomoku->isYourTurn()) {
@@ -218,6 +231,7 @@ void MainWindow::setupClient()
             connect(mClient, &GomokuClient::nextGame, gomoku, &GomokuWidget::nextGame);
             gomoku->setEnabled(true);
 
+            lockTab = 2;
         });
 
         connect(mClient.data(), &GomokuClient::error, [=](const QString err){
@@ -226,6 +240,7 @@ void MainWindow::setupClient()
             connectToServer->setEnabled(true);
             gomoku->setEnabled(false);
             connectToServer->setText(tr("Connect To Server"));
+            lockTab = 0;
         });
 
         connect(mClient.data(), &GomokuClient::disconnected, [=]{
@@ -238,6 +253,7 @@ void MainWindow::setupClient()
            connectToServer->setEnabled(true);
            connectToServer->setText(tr("Connect To Server"));
            gomoku->setEnabled(false);
+           lockTab = 0;
         });
 
         connectToServer->setText(tr("Connecting..."));
@@ -255,6 +271,7 @@ void MainWindow::setupClient()
         connectToServer->setEnabled(true);
         cancel->setEnabled(false);
         gomoku->setEnabled(false);
+        lockTab = 0;
     });
 
     nextBtn->setVisible(false);

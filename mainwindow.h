@@ -38,6 +38,8 @@ private:
 
     ProtocolSerializer* mClientSerializer;
     ProtocolSerializer* mServerSerializer;
+
+    int lockTab = 0;
 };
 
 #endif // MAINWINDOW_H
