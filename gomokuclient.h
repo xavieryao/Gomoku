@@ -15,6 +15,7 @@ public:
 
 private:
     QString server;
+    QPointer<QTcpSocket> socket;
 
 signals:
     void connected();

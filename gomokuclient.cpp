@@ -10,14 +10,14 @@ GomokuClient::GomokuClient(QString server, QObject* parent):
 
 void GomokuClient::start()
 {
-    QTcpSocket* socket = new QTcpSocket();
-    socket->connectToHost(QHostAddress(server), 8888);
-    connect(socket, &QTcpSocket::connected, this, &GomokuClient::connected);
+    socket = new QTcpSocket();
+    socket.data()->connectToHost(QHostAddress(server), 8888);
+    connect(socket.data(), &QTcpSocket::connected, this, &GomokuClient::connected);
 
-    connect(socket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+    connect(socket.data(), static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
           [=](QAbstractSocket::SocketError socketError){
-        emit error(socket->errorString());
-        qDebug() << "socket error:" << socket->errorString();
+        emit error(socket.data()->errorString());
+        qDebug() << "socket error:" << socket.data()->errorString();
         quit();
     });
 
@@ -36,4 +36,9 @@ void GomokuClient::setServer(const QString &value)
 void GomokuClient::quit()
 {
     // TODO need some clean up.
+    if (socket) {
+        socket.data()->disconnectFromHost();
+        socket.data()->close();
+        socket.data()->deleteLater();
+    }
 }
