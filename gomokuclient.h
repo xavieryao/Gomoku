@@ -20,6 +20,7 @@ private:
 signals:
     void connected();
     void error(const QString errorStr);
+    void disconnected();
 
 public slots:
     void quit();

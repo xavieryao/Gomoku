@@ -18,6 +18,7 @@ private:
 signals:
     void socketCreated(QString clientAddr);
     void error(const QString errorString);
+    void disconnected();
 
 private slots:
     void onNewConnection();

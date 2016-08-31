@@ -22,6 +22,13 @@ void GomokuClient::start()
         deleteLater();
     });
 
+    connect(socket.data(), &QTcpSocket::disconnected, [=]{
+       qInfo() << "disconnected";
+       emit disconnected();
+       quit();
+       deleteLater();
+    });
+
     connect(this, &QObject::destroyed, this, &GomokuClient::quit);
 }
 
@@ -37,10 +44,11 @@ void GomokuClient::setServer(const QString &value)
 
 void GomokuClient::quit()
 {
+    qDebug() << "quit";
     if (socket) {
         socket.data()->disconnectFromHost();
         socket.data()->close();
-        socket.data()->deleteLater();
+        socket->deleteLater();
     }
 
 //    deleteLater();

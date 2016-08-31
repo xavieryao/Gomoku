@@ -22,7 +22,7 @@ private:
 
     QHostAddress localAddress();
     QPointer<GomokuServer> mServer;
-    GomokuClient* mClient = 0;
+    QPointer<GomokuClient> mClient;
 };
 
 #endif // MAINWINDOW_H
