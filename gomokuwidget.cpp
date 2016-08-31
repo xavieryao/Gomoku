@@ -141,7 +141,7 @@ void GomokuWidget::positionPawn(QPoint position)
         qDebug() << point;
     }
     current = flip(current);
-
+    emit doneMove(isYourTurn());
     update();
 
 }
@@ -432,4 +432,29 @@ void GomokuWidget::nextGame()
     initColor = flip(initColor);
     setEnabled(true);
     current = Pawn::BLACK;
+}
+
+QString GomokuWidget::initColorStr(bool revert) const
+{
+    if (revert) {
+        if (initColor == Pawn::WHITE) {
+            return tr("Black");
+        }
+        if (initColor == Pawn::BLACK) {
+            return tr("White");
+        }
+    }
+    if (initColor == Pawn::BLACK) {
+        return tr("Black");
+    }
+    if (initColor == Pawn::WHITE) {
+        return tr("White");
+    }
+    return "Null";
+
+}
+
+bool GomokuWidget::isYourTurn() const
+{
+    return current == initColor;
 }

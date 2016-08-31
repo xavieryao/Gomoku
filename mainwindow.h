@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtNetwork>
 #include <QTabWidget>
+#include <QLabel>
 #include "gomokuserver.h"
 #include "gomokuclient.h"
 #include "gomokuwidget.h"
@@ -31,6 +32,9 @@ private:
     QWidget* mServerWidget;
     QWidget* mClientWidget;
     QTabWidget* mTab;
+
+    QLabel* mPlayer;
+    QLabel* mTurn;
 
     ProtocolSerializer* mClientSerializer;
     ProtocolSerializer* mServerSerializer;

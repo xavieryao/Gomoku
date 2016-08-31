@@ -21,11 +21,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QWidget* sideBar = new QWidget(this);
     QVBoxLayout* lay = new QVBoxLayout(this);
     mTab = new QTabWidget(this);
-    lay->addWidget(mTab);
     sideBar->setLayout(lay);
 
     mServerSerializer = new ProtocolSerializer(this);
     mClientSerializer = new ProtocolSerializer(this);
+
+    mPlayer = new QLabel(this);
+    mTurn = new QLabel(this);
 
     setupServer();
     setupClient();
@@ -39,6 +41,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
         gomoku->setEnabled(false);
     });
+
+    connect(gomoku, &GomokuWidget::doneMove, [=](bool your) {
+        if (your) {
+            mTurn->setText(tr("Your turn."));
+        } else {
+            mTurn->setText(tr("Opposite's turn."));
+        }
+    });
+
+    lay->addWidget(mPlayer);
+    lay->addWidget(mTurn);
+    lay->addWidget(mTab);
 
     centralLayout->addWidget(gomoku, 12);
     centralLayout->addWidget(sideBar, 9);
@@ -72,6 +86,12 @@ void MainWindow::setupServer()
 
         connect(mServer, &GomokuAbsHost::nextGame, [=] {
             qDebug() << "hide";
+            mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr(true)));
+            if (gomoku->isYourTurn()) {
+                mTurn->setText(tr("Your turn."));
+            } else {
+                mTurn->setText(tr("Opposite's turn."));
+            }
             nextBtn->setVisible(false);
         });
 
@@ -87,6 +107,12 @@ void MainWindow::setupServer()
             statusLabel->setText(tr("Client %1 Connected.").arg(peer));
             startServer->setText(tr("Connected"));
             gomoku->setInitColor(Pawn::BLACK);
+            mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr()));
+            if (gomoku->isYourTurn()) {
+                mTurn->setText(tr("Your turn."));
+            } else {
+                mTurn->setText(tr("Opposite's turn."));
+            }
             connect(gomoku, &GomokuWidget::move, mServer, &GomokuServer::sendMove);
             connect(mServer, &GomokuServer::newMove, gomoku, &GomokuWidget::positionPawn);
         });
@@ -125,6 +151,8 @@ void MainWindow::setupServer()
         gomoku->nextGame();
         mServer->requestNextGame();
         nextBtn->setVisible(false);
+        mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr()));
+
     });
     connect(gomoku, &GomokuWidget::win, [=] {
         nextBtn->setVisible(true);
@@ -166,11 +194,25 @@ void MainWindow::setupClient()
         connect(mClient, &GomokuAbsHost::nextGame, [=] {
             qDebug() << "hide";
             nextBtn->setVisible(false);
+            mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr(true)));
+            if (gomoku->isYourTurn()) {
+                mTurn->setText(tr("Your turn."));
+            } else {
+                mTurn->setText(tr("Opposite's turn."));
+            }
         });
 
         connect(mClient.data(), &GomokuClient::connected, [=]{
             connectToServer->setText(tr("Connected"));
+
             gomoku->setInitColor(Pawn::WHITE);
+            mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr()));
+            if (gomoku->isYourTurn()) {
+                mTurn->setText(tr("Your turn."));
+            } else {
+                mTurn->setText(tr("Opposite's turn."));
+            }
+
             connect(gomoku, &GomokuWidget::move, mClient, &GomokuAbsHost::sendMove);
             connect(mClient, &GomokuClient::newMove, gomoku, &GomokuWidget::positionPawn);
             connect(mClient, &GomokuClient::nextGame, gomoku, &GomokuWidget::nextGame);
@@ -220,6 +262,8 @@ void MainWindow::setupClient()
         gomoku->nextGame();
         nextBtn->setVisible(false);
         mClient->requestNextGame();
+        mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr()));
+
     });
     connect(gomoku, &GomokuWidget::win, [=] {
         nextBtn->setVisible(true);

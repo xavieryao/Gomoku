@@ -38,9 +38,13 @@ public:
 
     Pawn::State getInitColor() const;
 
+    QString initColorStr(bool revert = false) const;
+    bool isYourTurn() const;
+
 signals:
     void move(const QPoint & position);
     void win(bool you);
+    void doneMove(bool yourTurn);
 
 private:
     Map mMap;
