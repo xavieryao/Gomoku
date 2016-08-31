@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     lay->addWidget(mTab);
     sideBar->setLayout(lay);
 
+    mServerSerializer = new ProtocolSerializer(this);
+    mClientSerializer = new ProtocolSerializer(this);
+
     setupServer();
     setupClient();
 
@@ -33,18 +36,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         } else {
             QMessageBox::information(this, tr("Game finished"), "You are a loser.");
         }
-
-        gomoku->reset();
-        mClientWidget->deleteLater();
-        mServerWidget->deleteLater();
-
-        int current = mTab->currentIndex();
-        mTab->clear();
-
-        setupServer();
-        setupClient();
-
-        mTab->setCurrentIndex(current);
     });
 
     centralLayout->addWidget(gomoku, 12);
@@ -59,13 +50,13 @@ void MainWindow::setupServer()
     QVBoxLayout* layout = new QVBoxLayout(serverWidget);
     serverWidget->setLayout(layout);
     QLabel* ipLabel = new QLabel(serverWidget);
-    QLabel* statusLabel = new QLabel(serverWidget);
+    QPointer<QLabel> statusLabel = new QLabel(serverWidget);
 //    QLineEdit* nick = new QLabel(this);
 //    nick->setPlaceholderText(tr("Nickname"));
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
-    QPushButton* cancel = new QPushButton(tr("Stop Server"), serverWidget);
+    QPointer<QPushButton> cancel = new QPushButton(tr("Stop Server"), serverWidget);
     cancel->setEnabled(false);
-    QPushButton* startServer = new QPushButton(tr("Start Server"), serverWidget);
+    QPointer<QPushButton> startServer = new QPushButton(tr("Start Server"), serverWidget);
     connect(startServer, &QPushButton::clicked, [=]{
 
         statusLabel->setText("");
@@ -73,6 +64,7 @@ void MainWindow::setupServer()
             mServer.data()->deleteLater();
         }
         mServer = new GomokuServer();
+        mServer->setSerializer(mServerSerializer);
         connect(mServer.data(), &GomokuServer::error, [=](const QString error){
 //            cancel->setEnabled(true);
             statusLabel->setText(error);
@@ -89,10 +81,16 @@ void MainWindow::setupServer()
         });
 
         connect(mServer.data(), &GomokuServer::disconnected, [=]{
-            statusLabel->setText(tr("Disconnected."));
-            startServer->setText(tr("Start Server"));
-            startServer->setEnabled(true);
-            cancel->setEnabled(false);
+            if (statusLabel) {
+                statusLabel->setText(tr("Disconnected."));
+            }
+            if (startServer) {
+                startServer->setText(tr("Start Server"));
+                startServer->setEnabled(true);
+            }
+            if (cancel) {
+                cancel->setEnabled(false);
+            }
         });
         startServer->setText(tr("Listening..."));
         startServer->setEnabled(false);
@@ -127,9 +125,9 @@ void MainWindow::setupClient()
     QLabel* ipLabel = new QLabel(clientWidget);
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
     QLineEdit* serverIp = new QLineEdit(tr("127.0.0.1"), clientWidget);
-    QLabel* statusLabel = new QLabel(clientWidget);
-    QPushButton* connectToServer = new QPushButton(tr("Connect To Server"), clientWidget);
-    QPushButton* cancel = new QPushButton(tr("Disconnect"), clientWidget);
+    QPointer<QLabel> statusLabel = new QLabel(clientWidget);
+    QPointer<QPushButton> connectToServer = new QPushButton(tr("Connect To Server"), clientWidget);
+    QPointer<QPushButton> cancel = new QPushButton(tr("Disconnect"), clientWidget);
     cancel->setEnabled(false);
     connect(connectToServer, &QPushButton::clicked, [=]{
         if (mClient) {
@@ -137,6 +135,7 @@ void MainWindow::setupClient()
         }
         statusLabel->setText("");
         mClient = new GomokuClient(serverIp->text());
+        mClient->setSerializer(mClientSerializer);
 
         connect(mClient.data(), &GomokuClient::connected, [=]{
             connectToServer->setText(tr("Connected"));
@@ -153,6 +152,10 @@ void MainWindow::setupClient()
         });
 
         connect(mClient.data(), &GomokuClient::disconnected, [=]{
+            qDebug() << "disconn";
+           if (!statusLabel || !cancel || !connectToServer) {
+               return;
+           }
            statusLabel->setText("Disconnected.");
            cancel->setEnabled(false);
            connectToServer->setEnabled(true);

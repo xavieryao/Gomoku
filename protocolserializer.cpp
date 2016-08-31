@@ -19,12 +19,14 @@ void ProtocolSerializer::setSocket(QTcpSocket *value)
 
 void ProtocolSerializer::readyToRead()
 {
+    qDebug() << "ready to read";
     buffer.append(socket->readAll());
 //    qInfo("read from socket");
 //    qInfo() << "read " << buffer.size() << "bytes.";
 //    qInfo() << QString(buffer);
     QString str = buffer;
     int size = 0;
+    qDebug() << "wtf";
     while(str.contains(HEADER)) {
         str.remove(0, HEADER_LEN);
 //        qInfo() << "has header";
@@ -47,9 +49,9 @@ void ProtocolSerializer::readyToRead()
         size += HEADER_LEN;
         size += lengthSize;
         size += contentSize;
-//        qInfo() << "size to remove:" << size;
     }
     buffer.remove(0, size);
+    qDebug() << "done";
 }
 
 void ProtocolSerializer::parseMsg(QString &msg)

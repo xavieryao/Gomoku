@@ -5,7 +5,6 @@ GomokuClient::GomokuClient(QString server, QObject* parent):
     GomokuAbsHost(parent),
     server(server)
 {
-    connect(mSerializer, &ProtocolSerializer::moveParsed, this, &GomokuClient::newMove);
 }
 
 
@@ -50,6 +49,7 @@ void GomokuClient::setServer(const QString &value)
 
 GomokuClient::~GomokuClient()
 {
+    qDebug() << "clean client";
     if (mSocket) {
         mSocket.data()->disconnectFromHost();
         mSocket.data()->close();

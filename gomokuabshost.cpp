@@ -1,8 +1,7 @@
 #include "gomokuabshost.h"
 
 GomokuAbsHost::GomokuAbsHost(QObject* parent):
-    QObject(parent),
-    mSerializer(new ProtocolSerializer(this))
+    QObject(parent)
 {
 
 }
@@ -15,6 +14,7 @@ ProtocolSerializer *GomokuAbsHost::serializer() const
 void GomokuAbsHost::setSerializer(ProtocolSerializer *serializer)
 {
     mSerializer = serializer;
+    connect(mSerializer, &ProtocolSerializer::moveParsed, this, &GomokuAbsHost::newMove);
 }
 
 void GomokuAbsHost::sendMove(const QPoint& position)

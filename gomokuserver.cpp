@@ -3,7 +3,6 @@
 GomokuServer::GomokuServer(QObject* parent) :
     GomokuAbsHost(parent)
 {
-    connect(mSerializer, &ProtocolSerializer::moveParsed, this, &GomokuServer::newMove);
 }
 
 

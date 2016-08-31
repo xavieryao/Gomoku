@@ -7,6 +7,7 @@
 #include "gomokuserver.h"
 #include "gomokuclient.h"
 #include "gomokuwidget.h"
+#include "protocolserializer.h"
 
 class MainWindow : public QMainWindow
 {
@@ -30,6 +31,9 @@ private:
     QWidget* mServerWidget;
     QWidget* mClientWidget;
     QTabWidget* mTab;
+
+    ProtocolSerializer* mClientSerializer;
+    ProtocolSerializer* mServerSerializer;
 };
 
 #endif // MAINWINDOW_H

@@ -104,12 +104,19 @@ void GomokuWidget::resizeEvent(QResizeEvent *event)
 
 void GomokuWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    qDebug() << "init" << initColor;
+    qDebug() << "current" << current;
 //    mMap[3][5].setState(Pawn::BLACK);
     if (current != initColor) {
         return;
     }
+
     QPoint clicked = Map::pointForPosition(event->pos(), this->rect());
     if (clicked == QPoint(-1, -1)) {
+        return;
+    }
+
+    if (mMap[clicked.x()][clicked.y()].state() != Pawn::NONE) {
         return;
     }
     emit move(clicked);

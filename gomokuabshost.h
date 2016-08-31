@@ -15,6 +15,10 @@ public:
 
     virtual void start() = 0;
 
+    bool alive() {
+        return (mSocket && mSocket->isOpen());
+    }
+
 
 protected:
     ProtocolSerializer* mSerializer;
