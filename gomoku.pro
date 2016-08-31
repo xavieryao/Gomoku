@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     mainwindow.cpp \
     gomokuserver.cpp \
     gomokuclient.cpp \
-    protocolserializer.cpp
+    protocolserializer.cpp \
+    gomokuabshost.cpp
 
 HEADERS  += gomokuwidget.h \
     pawn.h \
@@ -26,7 +27,8 @@ HEADERS  += gomokuwidget.h \
     mainwindow.h \
     gomokuserver.h \
     gomokuclient.h \
-    protocolserializer.h
+    protocolserializer.h \
+    gomokuabshost.h
 
 RESOURCES += \
     res.qrc

@@ -4,29 +4,18 @@
 #include <QtNetwork>
 #include "protocolserializer.h"
 #include <QJsonObject>
+#include "gomokuabshost.h"
 
-class GomokuServer : public QObject
+class GomokuServer : public GomokuAbsHost
 {
     Q_OBJECT
 public:
     GomokuServer(QObject* parent = 0);
     ~GomokuServer();
-    void start();
+    void start() override;
 
 private:
     QPointer<QTcpServer> mServer;
-    QPointer<QTcpSocket> mSocket;
-
-    ProtocolSerializer* mSerializer;
-
-signals:
-    void socketCreated(QString clientAddr);
-    void error(const QString errorString);
-    void disconnected();
-    void newMove(QPoint position);
-
-public slots:
-    void sendMove(const QPoint& position);
 
 private slots:
     void onNewConnection();

@@ -60,6 +60,8 @@ void MainWindow::setupServer()
     serverWidget->setLayout(layout);
     QLabel* ipLabel = new QLabel(serverWidget);
     QLabel* statusLabel = new QLabel(serverWidget);
+//    QLineEdit* nick = new QLabel(this);
+//    nick->setPlaceholderText(tr("Nickname"));
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
     QPushButton* cancel = new QPushButton(tr("Stop Server"), serverWidget);
     cancel->setEnabled(false);
@@ -78,8 +80,8 @@ void MainWindow::setupServer()
             startServer->setEnabled(true);
             cancel->setEnabled(false);
         });
-        connect(mServer.data(), &GomokuServer::socketCreated, [=](const QString client){
-            statusLabel->setText(tr("Client %1 Connected.").arg(client));
+        connect(mServer.data(), &GomokuServer::connected, [=](const QString peer){
+            statusLabel->setText(tr("Client %1 Connected.").arg(peer));
             startServer->setText(tr("Connected"));
             gomoku->setInitColor(Pawn::BLACK);
             connect(gomoku, &GomokuWidget::move, mServer, &GomokuServer::sendMove);
@@ -111,6 +113,7 @@ void MainWindow::setupServer()
 
     layout->addWidget(ipLabel);
     layout->addWidget(statusLabel);
+//    layout->addWidget(nick);
     layout->addWidget(startServer);
     layout->addWidget(cancel);
 
@@ -138,7 +141,7 @@ void MainWindow::setupClient()
         connect(mClient.data(), &GomokuClient::connected, [=]{
             connectToServer->setText(tr("Connected"));
             gomoku->setInitColor(Pawn::WHITE);
-            connect(gomoku, &GomokuWidget::move, mClient, &GomokuClient::sendMove);
+            connect(gomoku, &GomokuWidget::move, mClient, &GomokuAbsHost::sendMove);
             connect(mClient, &GomokuClient::newMove, gomoku, &GomokuWidget::positionPawn);
         });
 
@@ -186,7 +189,6 @@ QHostAddress MainWindow::localAddress()
     foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
         if (address.protocol() == QAbstractSocket::IPv4Protocol
                 && address != QHostAddress(QHostAddress::LocalHost)) {
-            qDebug() << address.toString();
             return address;
         }
     }

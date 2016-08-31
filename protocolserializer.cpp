@@ -22,7 +22,7 @@ void ProtocolSerializer::readyToRead()
     buffer.append(socket->readAll());
 //    qInfo("read from socket");
 //    qInfo() << "read " << buffer.size() << "bytes.";
-    qInfo() << QString(buffer);
+//    qInfo() << QString(buffer);
     QString str = buffer;
     int size = 0;
     while(str.contains(HEADER)) {
