@@ -56,7 +56,6 @@ void MainWindow::setupServer(QWidget *serverWidget)
 
         statusLabel->setText("");
         if (mServer) {
-            mServer.data()->quit();
             mServer.data()->deleteLater();
         }
         mServer = new GomokuServer();
@@ -87,7 +86,6 @@ void MainWindow::setupServer(QWidget *serverWidget)
 
     connect(cancel, &QPushButton::clicked, [=]{
         if (mServer) {
-            mServer.data()->quit();
             mServer.data()->deleteLater();
         }
         startServer->setText(tr("Start Server"));
@@ -114,7 +112,6 @@ void MainWindow::setupClient(QWidget* clientWidget)
     cancel->setEnabled(false);
     connect(connectToServer, &QPushButton::clicked, [=]{
         if (mClient) {
-            mClient.data()->quit();
             mClient.data()->deleteLater();
         }
         statusLabel->setText("");
@@ -146,7 +143,6 @@ void MainWindow::setupClient(QWidget* clientWidget)
 
     connect(cancel, &QPushButton::clicked, [=]{
         if (mClient) {
-            mClient.data()->quit();
             mClient.data()->deleteLater();
         }
         connectToServer->setText(tr("Connect To Server"));

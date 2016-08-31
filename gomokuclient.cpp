@@ -18,18 +18,15 @@ void GomokuClient::start()
           [=](QAbstractSocket::SocketError socketError){
         emit error(socket.data()->errorString());
         qDebug() << "socket error:" << socket.data()->errorString();
-        quit();
         deleteLater();
     });
 
     connect(socket.data(), &QTcpSocket::disconnected, [=]{
        qInfo() << "disconnected";
        emit disconnected();
-       quit();
        deleteLater();
     });
 
-    connect(this, &QObject::destroyed, this, &GomokuClient::quit);
 }
 
 QString& GomokuClient::getServer()
@@ -42,7 +39,7 @@ void GomokuClient::setServer(const QString &value)
     server = value;
 }
 
-void GomokuClient::quit()
+GomokuClient::~GomokuClient()
 {
     qDebug() << "quit";
     if (socket) {

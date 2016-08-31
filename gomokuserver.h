@@ -9,6 +9,7 @@ class GomokuServer : public QObject
     Q_OBJECT
 public:
     GomokuServer(QObject* parent = 0);
+    ~GomokuServer();
     void start();
 
 private:
@@ -23,8 +24,6 @@ signals:
 private slots:
     void onNewConnection();
 
-public slots:
-    void quit();
 
 };
 

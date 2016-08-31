@@ -8,6 +8,7 @@ class GomokuClient : public QObject
     Q_OBJECT
 public:
     GomokuClient(QString server, QObject* parent = 0);
+    ~GomokuClient();
     void start();
 
     QString& getServer();
@@ -22,8 +23,6 @@ signals:
     void error(const QString errorStr);
     void disconnected();
 
-public slots:
-    void quit();
 };
 
 #endif // GOMOKUCLIENT_H

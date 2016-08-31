@@ -17,15 +17,12 @@ void GomokuServer::start()
     connect(mServer.data(), &QTcpServer::acceptError, [=]{
        qInfo() << "accept error:" << mServer.data()->errorString();
        emit error(mServer.data()->errorString());
-       quit();
        deleteLater();
     });
 
-    connect(this, &QObject::destroyed, this, &GomokuServer::quit);
-
 }
 
-void GomokuServer::quit()
+GomokuServer::~GomokuServer()
 {
     qInfo() << "clean up server";
     if (mServer) {
@@ -51,7 +48,6 @@ void GomokuServer::onNewConnection()
     connect(mSocket.data(), &QTcpSocket::disconnected, [=]{
         emit disconnected();
         qInfo() << "disconnected.";
-        quit();
         deleteLater();
     });
 }
