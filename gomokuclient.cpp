@@ -53,7 +53,5 @@ GomokuClient::~GomokuClient()
         socket.data()->close();
         socket->deleteLater();
     }
-    serializer->deleteLater();
-
 //    deleteLater();
 }

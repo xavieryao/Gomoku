@@ -1,7 +1,8 @@
 #include "gomokuserver.h"
 
 GomokuServer::GomokuServer(QObject* parent) :
-    QObject(parent)
+    QObject(parent),
+    mSerializer(new ProtocolSerializer(this))
 {
 
 }
@@ -42,9 +43,10 @@ GomokuServer::~GomokuServer()
 void GomokuServer::onNewConnection()
 {
     mSocket = mServer.data()->nextPendingConnection();
-    mServer.data()->close();
+    mServer->pauseAccepting();
     emit socketCreated(mSocket.data()->peerAddress().toString());
     qInfo() << "new connection from " << mSocket.data()->peerAddress().toString();
+    qInfo() << "local port" << mSocket->localPort();
     connect(mSocket.data(), &QTcpSocket::disconnected, [=]{
         emit disconnected();
         qInfo() << "disconnected.";
@@ -53,9 +55,9 @@ void GomokuServer::onNewConnection()
 
     // DEBUG
     qInfo() << "send debug data";
-    QString header = "YaoProtocol\n%1\n";
-    QString msg = "{\"msgType\":\"move\", \"x\":3, \"y\":5}\n";
-    header = header.arg(msg.toUtf8().size());
-    QString towrite = header + msg;
-    mSocket->write(towrite.toUtf8());
+    QJsonObject obj;
+    obj["msgType"] = "move";
+    obj["x"] = 3;
+    obj["y"] = 5;
+    mSocket.data()->write(mSerializer->serialize(obj));
 }

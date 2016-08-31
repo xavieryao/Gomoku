@@ -33,7 +33,7 @@ void ProtocolSerializer::readyToRead()
         if (list.size()==0) {
             break;
         }
-        int lengthSize = list.at(0).size();
+        int lengthSize = list.at(0).size() + 1;
         qInfo() << "has length. field size: " << lengthSize;
         str.remove(0, lengthSize); // remove '[contentLength]\n'
         int contentSize = list.at(0).toInt();
@@ -65,4 +65,15 @@ void ProtocolSerializer::parseMsg(QString &msg)
         emit moveParsed(point);
         return;
     }
+}
+
+QByteArray ProtocolSerializer::serialize(QJsonObject msg)
+{
+    QJsonDocument doc(msg);
+    QByteArray json = doc.toJson(QJsonDocument::Compact);
+    QByteArray bytes = HEADER.toUtf8();
+    bytes += QString::number(json.length());
+    bytes += '\n';
+    bytes += json;
+    return bytes;
 }

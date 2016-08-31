@@ -1,8 +1,9 @@
 #ifndef GOMOKUSERVER_H
 #define GOMOKUSERVER_H
 
-#include <QThread>
 #include <QtNetwork>
+#include "protocolserializer.h"
+#include <QJsonObject>
 
 class GomokuServer : public QObject
 {
@@ -15,6 +16,8 @@ public:
 private:
     QPointer<QTcpServer> mServer;
     QPointer<QTcpSocket> mSocket;
+
+    ProtocolSerializer* mSerializer;
 
 signals:
     void socketCreated(QString clientAddr);

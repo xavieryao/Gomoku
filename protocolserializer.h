@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtNetwork>
+#include <QJsonObject>
 
 class ProtocolSerializer : public QObject
 {
@@ -12,6 +13,7 @@ public:
 
     QTcpSocket *getSocket() const;
     void setSocket(QTcpSocket *value);
+    QByteArray serialize(QJsonObject msg);
 
 signals:
     void moveParsed(QPoint point);
