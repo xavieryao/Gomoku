@@ -29,6 +29,8 @@ public:
 
     void setInitColor(Pawn::State color) {initColor = color;}
 
+    void reset();
+
     QPoint pointForPosition();
 
 signals:

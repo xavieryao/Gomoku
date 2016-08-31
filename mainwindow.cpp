@@ -17,33 +17,35 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     centralWidget->setLayout(centralLayout);
 
     gomoku = new GomokuWidget(this);
-    connect(gomoku, &GomokuWidget::win, [=](bool you){
-        if (you) {
-            QMessageBox::information(this, tr("Game finished"), "You are the Winner!");
-        } else {
-            QMessageBox::information(this, tr("Game finished"), "You are a loser.");
-        }
-    });
 
     QWidget* sideBar = new QWidget(this);
     QVBoxLayout* lay = new QVBoxLayout(this);
-    QTabWidget* tab = new QTabWidget(this);
-    lay->addWidget(tab);
+    mTab = new QTabWidget(this);
+    lay->addWidget(mTab);
     sideBar->setLayout(lay);
 
-    QWidget* serverWidget = new QWidget(this);
-    QVBoxLayout* serverLayout = new QVBoxLayout(this);
-    serverWidget->setLayout(serverLayout);
+    setupServer();
+    setupClient();
 
-    QWidget* clientWidget = new QWidget(this);
-    QVBoxLayout* clientLayout = new QVBoxLayout(this);
-    clientWidget->setLayout(clientLayout);
+    connect(gomoku, &GomokuWidget::win, [=](bool you) {
+        if (you) {
+            QMessageBox::information(this, tr("Game finished"), "You are the WINNER!");
+        } else {
+            QMessageBox::information(this, tr("Game finished"), "You are a loser.");
+        }
 
-    setupServer(serverWidget);
-    setupClient(clientWidget);
+        gomoku->reset();
+        mClientWidget->deleteLater();
+        mServerWidget->deleteLater();
 
-    tab->addTab(serverWidget, tr("Server"));
-    tab->addTab(clientWidget, tr("Client"));
+        int current = mTab->currentIndex();
+        mTab->clear();
+
+        setupServer();
+        setupClient();
+
+        mTab->setCurrentIndex(current);
+    });
 
     centralLayout->addWidget(gomoku, 12);
     centralLayout->addWidget(sideBar, 9);
@@ -51,15 +53,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     resize(650, 360);
 }
 
-void MainWindow::setupServer(QWidget *serverWidget)
+void MainWindow::setupServer()
 {
-    QVBoxLayout* layout = static_cast<QVBoxLayout *>(serverWidget->layout());
-    QLabel* ipLabel = new QLabel(this);
-    QLabel* statusLabel = new QLabel(this);
+    QWidget* serverWidget = new QWidget(this);
+    QVBoxLayout* layout = new QVBoxLayout(serverWidget);
+    serverWidget->setLayout(layout);
+    QLabel* ipLabel = new QLabel(serverWidget);
+    QLabel* statusLabel = new QLabel(serverWidget);
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
-    QPushButton* cancel = new QPushButton(tr("Stop Server"), this);
+    QPushButton* cancel = new QPushButton(tr("Stop Server"), serverWidget);
     cancel->setEnabled(false);
-    QPushButton* startServer = new QPushButton(tr("Start Server"), this);
+    QPushButton* startServer = new QPushButton(tr("Start Server"), serverWidget);
     connect(startServer, &QPushButton::clicked, [=]{
 
         statusLabel->setText("");
@@ -109,17 +113,20 @@ void MainWindow::setupServer(QWidget *serverWidget)
     layout->addWidget(statusLabel);
     layout->addWidget(startServer);
     layout->addWidget(cancel);
+
+    mTab->addTab(serverWidget, tr("Server"));
 }
 
-void MainWindow::setupClient(QWidget* clientWidget)
+void MainWindow::setupClient()
 {
-    QVBoxLayout* layout = static_cast<QVBoxLayout *>(clientWidget->layout());
-    QLabel* ipLabel = new QLabel(this);
+    QWidget* clientWidget = new QWidget(this);
+    QVBoxLayout* layout = new QVBoxLayout(clientWidget);
+    QLabel* ipLabel = new QLabel(clientWidget);
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
-    QLineEdit* serverIp = new QLineEdit(tr("127.0.0.1"), this);
-    QLabel* statusLabel = new QLabel(this);
-    QPushButton* connectToServer = new QPushButton(tr("Connect To Server"), this);
-    QPushButton* cancel = new QPushButton(tr("Disconnect"), this);
+    QLineEdit* serverIp = new QLineEdit(tr("127.0.0.1"), clientWidget);
+    QLabel* statusLabel = new QLabel(clientWidget);
+    QPushButton* connectToServer = new QPushButton(tr("Connect To Server"), clientWidget);
+    QPushButton* cancel = new QPushButton(tr("Disconnect"), clientWidget);
     cancel->setEnabled(false);
     connect(connectToServer, &QPushButton::clicked, [=]{
         if (mClient) {
@@ -169,6 +176,9 @@ void MainWindow::setupClient(QWidget* clientWidget)
     layout->addWidget(serverIp);
     layout->addWidget(connectToServer);
     layout->addWidget(cancel);
+
+    mTab->addTab(clientWidget, tr("Client"));
+
 }
 
 QHostAddress MainWindow::localAddress()

@@ -403,3 +403,12 @@ Pawn::State GomokuWidget::flip(Pawn::State state) {
         return Pawn::BLACK;
     }
 }
+
+void GomokuWidget::reset() {
+    current = Pawn::BLACK;
+    for (int i = 0; i < 15; i++) {
+        for (int j = 0; j < 15; j++) {
+            mMap[i][j].setState(Pawn::NONE);
+        }
+    }
+}

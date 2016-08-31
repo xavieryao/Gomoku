@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtNetwork>
+#include <QTabWidget>
 #include "gomokuserver.h"
 #include "gomokuclient.h"
 #include "gomokuwidget.h"
@@ -18,15 +19,17 @@ signals:
 public slots:
 
 private:
-    void setupServer(QWidget* serverWidget);
-    void setupClient(QWidget* clientWidget);
+    void setupServer();
+    void setupClient();
 
     QHostAddress localAddress();
     QPointer<GomokuServer> mServer;
     QPointer<GomokuClient> mClient;
 
     GomokuWidget* gomoku;
-
+    QWidget* mServerWidget;
+    QWidget* mClientWidget;
+    QTabWidget* mTab;
 };
 
 #endif // MAINWINDOW_H
