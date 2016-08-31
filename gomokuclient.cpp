@@ -1,31 +1,25 @@
 #include "gomokuclient.h"
 #include <QDebug>
 
-GomokuClient::GomokuClient(QString server):
+GomokuClient::GomokuClient(QString server, QObject* parent):
+    QObject(parent),
     server(server)
 {
 
 }
 
-void GomokuClient::run()
+void GomokuClient::start()
 {
     QTcpSocket* socket = new QTcpSocket();
     socket->connectToHost(QHostAddress(server), 8888);
-    if (socket->waitForConnected()) {
-        qDebug() << "connected.";
-        emit connected();
-    } else {
-        emit connectionError(socket->errorString());
-        qDebug() << "connection error " << socket->errorString();
-        quit();
-    }
+    connect(socket, &QTcpSocket::connected, this, &GomokuClient::connected);
+
     connect(socket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
           [=](QAbstractSocket::SocketError socketError){
         emit error(socket->errorString());
         qDebug() << "socket error:" << socket->errorString();
         quit();
     });
-    exec();
 
 }
 
@@ -37,4 +31,9 @@ QString& GomokuClient::getServer()
 void GomokuClient::setServer(const QString &value)
 {
     server = value;
+}
+
+void GomokuClient::quit()
+{
+    // TODO need some clean up.
 }

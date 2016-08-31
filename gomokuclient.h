@@ -1,15 +1,14 @@
 #ifndef GOMOKUCLIENT_H
 #define GOMOKUCLIENT_H
 
-#include <QThread>
 #include <QtNetwork>
 
-class GomokuClient : public QThread
+class GomokuClient : public QObject
 {
     Q_OBJECT
 public:
-    GomokuClient(QString server);
-    void run() Q_DECL_OVERRIDE;
+    GomokuClient(QString server, QObject* parent = 0);
+    void start();
 
     QString& getServer();
     void setServer(const QString &value);
@@ -19,8 +18,10 @@ private:
 
 signals:
     void connected();
-    void connectionError(const QString errorStr);
     void error(const QString errorStr);
+
+public slots:
+    void quit();
 };
 
 #endif // GOMOKUCLIENT_H

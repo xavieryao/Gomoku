@@ -94,12 +94,6 @@ void MainWindow::setupClient(QWidget* clientWidget)
             client = new GomokuClient(serverIp->text());
         }
         client->start();
-        connect(client, &QThread::started, [=]{
-            qDebug() << "Thead started.";
-        });
-        connect(client, &QThread::finished, [=]{
-            qDebug() << "Thread finished.";
-        });
     });
     layout->addWidget(ipLabel);
     layout->addWidget(serverIp);
