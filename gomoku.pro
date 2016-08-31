@@ -17,14 +17,16 @@ SOURCES += main.cpp\
     pawn.cpp \
     mainwindow.cpp \
     gomokuserver.cpp \
-    gomokuclient.cpp
+    gomokuclient.cpp \
+    protocolserializer.cpp
 
 HEADERS  += gomokuwidget.h \
     pawn.h \
     map.h \
     mainwindow.h \
     gomokuserver.h \
-    gomokuclient.h
+    gomokuclient.h \
+    protocolserializer.h
 
 RESOURCES += \
     res.qrc
