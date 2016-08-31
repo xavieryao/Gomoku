@@ -6,7 +6,7 @@ GomokuClient::GomokuClient(QString server, QObject* parent):
     server(server),
     serializer(new ProtocolSerializer(this))
 {
-
+    connect(serializer, &ProtocolSerializer::moveParsed, this, &GomokuClient::newMove);
 }
 
 void GomokuClient::start()
@@ -54,4 +54,17 @@ GomokuClient::~GomokuClient()
         socket->deleteLater();
     }
 //    deleteLater();
+}
+
+void GomokuClient::sendMove(const QPoint& position)
+{
+    if (socket) {
+        qInfo() << "send move data";
+        QJsonObject obj;
+        obj["msgType"] = "move";
+        obj["x"] = position.x();
+        obj["y"] = position.y();
+        socket.data()->write(serializer->serialize(obj));
+    }
+
 }

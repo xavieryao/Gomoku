@@ -23,6 +23,10 @@ signals:
     void socketCreated(QString clientAddr);
     void error(const QString errorString);
     void disconnected();
+    void newMove(QPoint position);
+
+public slots:
+    void sendMove(const QPoint& position);
 
 private slots:
     void onNewConnection();

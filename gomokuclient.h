@@ -24,7 +24,10 @@ signals:
     void connected();
     void error(const QString errorStr);
     void disconnected();
+    void newMove(QPoint position);
 
+public slots:
+    void sendMove(const QPoint& position);
 };
 
 #endif // GOMOKUCLIENT_H

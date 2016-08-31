@@ -5,6 +5,7 @@
 #include <QtNetwork>
 #include "gomokuserver.h"
 #include "gomokuclient.h"
+#include "gomokuwidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -23,6 +24,9 @@ private:
     QHostAddress localAddress();
     QPointer<GomokuServer> mServer;
     QPointer<GomokuClient> mClient;
+
+    GomokuWidget* gomoku;
+
 };
 
 #endif // MAINWINDOW_H

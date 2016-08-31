@@ -109,6 +109,7 @@ void GomokuWidget::mouseReleaseEvent(QMouseEvent *event)
     if (clicked == QPoint(-1, -1)) {
         return;
     }
+    emit move(clicked);
     positionPawn(clicked);
 }
 

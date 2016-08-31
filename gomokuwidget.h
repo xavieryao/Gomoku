@@ -27,9 +27,12 @@ public:
     bool hasHeightForWidth() const {return true;}
     int heightForWidth(int w) const {return w;}
 
+    void setColor(Pawn::State color) {current = color;}
+
     QPoint pointForPosition();
 
 signals:
+    void move(const QPoint & position);
     void win(Pawn::State color);
 
 private:
@@ -38,7 +41,6 @@ private:
 
     Pawn::State current = Pawn::BLACK;
 
-    void positionPawn(QPoint position);
     bool hasWon();
     bool test(QPoint position);
     Pawn::State flip(Pawn::State state);
@@ -51,6 +53,10 @@ private:
     const int BACK_CROSS = CROSS << 1;
 
     QList<QPoint> hintList;
+
+public slots:
+    void positionPawn(QPoint position);
+
 };
 
 #endif // GOMOKUWIDGET_H

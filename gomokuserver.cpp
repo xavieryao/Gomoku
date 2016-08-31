@@ -4,7 +4,7 @@ GomokuServer::GomokuServer(QObject* parent) :
     QObject(parent),
     mSerializer(new ProtocolSerializer(this))
 {
-
+    connect(mSerializer, &ProtocolSerializer::moveParsed, this, &GomokuServer::newMove);
 }
 
 void GomokuServer::start()
@@ -47,17 +47,26 @@ void GomokuServer::onNewConnection()
     emit socketCreated(mSocket.data()->peerAddress().toString());
     qInfo() << "new connection from " << mSocket.data()->peerAddress().toString();
     qInfo() << "local port" << mSocket->localPort();
+    mSerializer->setSocket(mSocket);
+    connect(mSocket, &QTcpSocket::readyRead, mSerializer, &ProtocolSerializer::readyToRead);
     connect(mSocket.data(), &QTcpSocket::disconnected, [=]{
         emit disconnected();
         qInfo() << "disconnected.";
         deleteLater();
     });
 
-    // DEBUG
-    qInfo() << "send debug data";
-    QJsonObject obj;
-    obj["msgType"] = "move";
-    obj["x"] = 3;
-    obj["y"] = 5;
-    mSocket.data()->write(mSerializer->serialize(obj));
+
+}
+
+void GomokuServer::sendMove(const QPoint& position)
+{
+    if (mSocket) {
+        qInfo() << "send move data";
+        QJsonObject obj;
+        obj["msgType"] = "move";
+        obj["x"] = position.x();
+        obj["y"] = position.y();
+        mSocket.data()->write(mSerializer->serialize(obj));
+    }
+
 }

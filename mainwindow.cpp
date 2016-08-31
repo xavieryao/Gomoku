@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QHBoxLayout* centralLayout = new QHBoxLayout(this);
     centralWidget->setLayout(centralLayout);
 
-    GomokuWidget* gomoku = new GomokuWidget(this);
+    gomoku = new GomokuWidget(this);
 
     QWidget* sideBar = new QWidget(this);
     QVBoxLayout* lay = new QVBoxLayout(this);
@@ -69,6 +69,9 @@ void MainWindow::setupServer(QWidget *serverWidget)
         connect(mServer.data(), &GomokuServer::socketCreated, [=](const QString client){
             statusLabel->setText(tr("Client %1 Connected.").arg(client));
             startServer->setText(tr("Connected"));
+            gomoku->setColor(Pawn::BLACK);
+            connect(gomoku, &GomokuWidget::move, mServer, &GomokuServer::sendMove);
+            connect(mServer, &GomokuServer::newMove, gomoku, &GomokuWidget::positionPawn);
         });
 
         connect(mServer.data(), &GomokuServer::disconnected, [=]{
@@ -119,6 +122,9 @@ void MainWindow::setupClient(QWidget* clientWidget)
 
         connect(mClient.data(), &GomokuClient::connected, [=]{
             connectToServer->setText(tr("Connected"));
+            gomoku->setColor(Pawn::BLACK);
+            connect(gomoku, &GomokuWidget::move, mClient, &GomokuClient::sendMove);
+            connect(mClient, &GomokuClient::newMove, gomoku, &GomokuWidget::positionPawn);
         });
 
         connect(mClient.data(), &GomokuClient::error, [=](const QString err){
