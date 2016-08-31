@@ -26,7 +26,6 @@ void ProtocolSerializer::readyToRead()
 //    qInfo() << QString(buffer);
     QString str = buffer;
     int size = 0;
-    qDebug() << "wtf";
     while(str.contains(HEADER)) {
         str.remove(0, HEADER_LEN);
 //        qInfo() << "has header";
@@ -65,6 +64,10 @@ void ProtocolSerializer::parseMsg(QString &msg)
         QPoint point(x, y);
 //        qInfo() << "move parsed " << point;
         emit moveParsed(point);
+        return;
+    }
+    if (msgType == "nextGame") {
+        emit nextGame();
         return;
     }
 }

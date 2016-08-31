@@ -15,6 +15,7 @@ void GomokuAbsHost::setSerializer(ProtocolSerializer *serializer)
 {
     mSerializer = serializer;
     connect(mSerializer, &ProtocolSerializer::moveParsed, this, &GomokuAbsHost::newMove);
+    connect(mSerializer, &ProtocolSerializer::nextGame, this, &GomokuAbsHost::nextGame);
 }
 
 void GomokuAbsHost::sendMove(const QPoint& position)
@@ -28,4 +29,13 @@ void GomokuAbsHost::sendMove(const QPoint& position)
         mSocket.data()->write(mSerializer->serialize(obj));
     }
 
+}
+
+void GomokuAbsHost::requestNextGame()
+{
+    if (mSocket) {
+        QJsonObject obj;
+        obj["msgType"] = "nextGame";
+        mSocket->write(mSerializer->serialize(obj));
+    }
 }

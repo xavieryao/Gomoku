@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         } else {
             QMessageBox::information(this, tr("Game finished"), "You are a loser.");
         }
+
+        gomoku->setEnabled(false);
     });
 
     centralLayout->addWidget(gomoku, 12);
@@ -57,6 +59,8 @@ void MainWindow::setupServer()
     QPointer<QPushButton> cancel = new QPushButton(tr("Stop Server"), serverWidget);
     cancel->setEnabled(false);
     QPointer<QPushButton> startServer = new QPushButton(tr("Start Server"), serverWidget);
+    QPushButton* nextBtn = new QPushButton(tr("Next Game"),serverWidget);
+
     connect(startServer, &QPushButton::clicked, [=]{
 
         statusLabel->setText("");
@@ -65,6 +69,13 @@ void MainWindow::setupServer()
         }
         mServer = new GomokuServer();
         mServer->setSerializer(mServerSerializer);
+
+        connect(mServer, &GomokuAbsHost::nextGame, [=] {
+            qDebug() << "hide";
+            nextBtn->setVisible(false);
+        });
+
+
         connect(mServer.data(), &GomokuServer::error, [=](const QString error){
 //            cancel->setEnabled(true);
             statusLabel->setText(error);
@@ -109,9 +120,21 @@ void MainWindow::setupServer()
         cancel->setEnabled(false);
     });
 
+    nextBtn->setVisible(false);
+    connect(nextBtn, &QPushButton::clicked, [=]{
+        gomoku->nextGame();
+        mServer->requestNextGame();
+        nextBtn->setVisible(false);
+    });
+    connect(gomoku, &GomokuWidget::win, [=] {
+        nextBtn->setVisible(true);
+    });
+
+
     layout->addWidget(ipLabel);
     layout->addWidget(statusLabel);
 //    layout->addWidget(nick);
+    layout->addWidget(nextBtn);
     layout->addWidget(startServer);
     layout->addWidget(cancel);
 
@@ -129,6 +152,8 @@ void MainWindow::setupClient()
     QPointer<QPushButton> connectToServer = new QPushButton(tr("Connect To Server"), clientWidget);
     QPointer<QPushButton> cancel = new QPushButton(tr("Disconnect"), clientWidget);
     cancel->setEnabled(false);
+    QPushButton* nextBtn = new QPushButton(tr("Next Game"),clientWidget);
+
     connect(connectToServer, &QPushButton::clicked, [=]{
         if (mClient) {
             mClient.data()->deleteLater();
@@ -137,17 +162,27 @@ void MainWindow::setupClient()
         mClient = new GomokuClient(serverIp->text());
         mClient->setSerializer(mClientSerializer);
 
+
+        connect(mClient, &GomokuAbsHost::nextGame, [=] {
+            qDebug() << "hide";
+            nextBtn->setVisible(false);
+        });
+
         connect(mClient.data(), &GomokuClient::connected, [=]{
             connectToServer->setText(tr("Connected"));
             gomoku->setInitColor(Pawn::WHITE);
             connect(gomoku, &GomokuWidget::move, mClient, &GomokuAbsHost::sendMove);
             connect(mClient, &GomokuClient::newMove, gomoku, &GomokuWidget::positionPawn);
+            connect(mClient, &GomokuClient::nextGame, gomoku, &GomokuWidget::nextGame);
+            gomoku->setEnabled(true);
+
         });
 
         connect(mClient.data(), &GomokuClient::error, [=](const QString err){
             statusLabel->setText(err);
             cancel->setEnabled(false);
             connectToServer->setEnabled(true);
+            gomoku->setEnabled(false);
             connectToServer->setText(tr("Connect To Server"));
         });
 
@@ -160,11 +195,13 @@ void MainWindow::setupClient()
            cancel->setEnabled(false);
            connectToServer->setEnabled(true);
            connectToServer->setText(tr("Connect To Server"));
+           gomoku->setEnabled(false);
         });
 
         connectToServer->setText(tr("Connecting..."));
         connectToServer->setEnabled(false);
         cancel->setEnabled(true);
+        gomoku->setEnabled(false);
         mClient.data()->start();
     });
 
@@ -175,11 +212,24 @@ void MainWindow::setupClient()
         connectToServer->setText(tr("Connect To Server"));
         connectToServer->setEnabled(true);
         cancel->setEnabled(false);
+        gomoku->setEnabled(false);
     });
+
+    nextBtn->setVisible(false);
+    connect(nextBtn, &QPushButton::clicked, [=]{
+        gomoku->nextGame();
+        nextBtn->setVisible(false);
+        mClient->requestNextGame();
+    });
+    connect(gomoku, &GomokuWidget::win, [=] {
+        nextBtn->setVisible(true);
+    });
+
 
     layout->addWidget(ipLabel);
     layout->addWidget(statusLabel);
     layout->addWidget(serverIp);
+    layout->addWidget(nextBtn);
     layout->addWidget(connectToServer);
     layout->addWidget(cancel);
 

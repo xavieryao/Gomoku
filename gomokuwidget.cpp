@@ -125,6 +125,7 @@ void GomokuWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void GomokuWidget::positionPawn(QPoint position)
 {
+    qDebug() << "position";
     mMap[position.x()][position.y()].setState(current);
 
     if (hasWon()) {
@@ -411,11 +412,24 @@ Pawn::State GomokuWidget::flip(Pawn::State state) {
     }
 }
 
+Pawn::State GomokuWidget::getInitColor() const
+{
+    return initColor;
+}
+
 void GomokuWidget::reset() {
-    current = Pawn::BLACK;
+//    current = Pawn::BLACK;
     for (int i = 0; i < 15; i++) {
         for (int j = 0; j < 15; j++) {
             mMap[i][j].setState(Pawn::NONE);
         }
     }
+}
+
+void GomokuWidget::nextGame()
+{
+    reset();
+    initColor = flip(initColor);
+    setEnabled(true);
+    current = Pawn::BLACK;
 }

@@ -17,6 +17,7 @@ public:
 
 signals:
     void moveParsed(QPoint point);
+    void nextGame();
 
 public slots:
     void readyToRead();

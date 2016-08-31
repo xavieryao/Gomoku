@@ -26,12 +26,14 @@ protected:
 
 public slots:
     void sendMove(const QPoint& position);
+    void requestNextGame();
 
 signals:
     void connected(const QString peer);
     void error(const QString errorStr);
     void disconnected();
     void newMove(QPoint position);
+    void nextGame();
 };
 
 #endif // GOMOKUABSHOST_H

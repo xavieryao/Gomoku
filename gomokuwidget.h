@@ -33,6 +33,11 @@ public:
 
     QPoint pointForPosition();
 
+    Pawn::State flip(Pawn::State state);
+
+
+    Pawn::State getInitColor() const;
+
 signals:
     void move(const QPoint & position);
     void win(bool you);
@@ -46,7 +51,6 @@ private:
 
     bool hasWon();
     bool test(QPoint position);
-    Pawn::State flip(Pawn::State state);
     QList<QPoint> hint();
     int goodDirections(QPoint position);
 
@@ -59,6 +63,7 @@ private:
 
 public slots:
     void positionPawn(QPoint position);
+    void nextGame();
 
 };
 
