@@ -59,7 +59,7 @@ GomokuClient::~GomokuClient()
 void GomokuClient::sendMove(const QPoint& position)
 {
     if (socket) {
-        qInfo() << "send move data";
+//        qInfo() << "send move data";
         QJsonObject obj;
         obj["msgType"] = "move";
         obj["x"] = position.x();

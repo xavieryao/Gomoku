@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QtNetwork>
 #include "gomokuwidget.h"
 
@@ -16,6 +17,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     centralWidget->setLayout(centralLayout);
 
     gomoku = new GomokuWidget(this);
+    connect(gomoku, &GomokuWidget::win, [=](bool you){
+        if (you) {
+            QMessageBox::information(this, tr("Game finished"), "You are the Winner!");
+        } else {
+            QMessageBox::information(this, tr("Game finished"), "You are a loser.");
+        }
+    });
 
     QWidget* sideBar = new QWidget(this);
     QVBoxLayout* lay = new QVBoxLayout(this);
@@ -69,7 +77,7 @@ void MainWindow::setupServer(QWidget *serverWidget)
         connect(mServer.data(), &GomokuServer::socketCreated, [=](const QString client){
             statusLabel->setText(tr("Client %1 Connected.").arg(client));
             startServer->setText(tr("Connected"));
-            gomoku->setColor(Pawn::BLACK);
+            gomoku->setInitColor(Pawn::BLACK);
             connect(gomoku, &GomokuWidget::move, mServer, &GomokuServer::sendMove);
             connect(mServer, &GomokuServer::newMove, gomoku, &GomokuWidget::positionPawn);
         });
@@ -122,7 +130,7 @@ void MainWindow::setupClient(QWidget* clientWidget)
 
         connect(mClient.data(), &GomokuClient::connected, [=]{
             connectToServer->setText(tr("Connected"));
-            gomoku->setColor(Pawn::BLACK);
+            gomoku->setInitColor(Pawn::WHITE);
             connect(gomoku, &GomokuWidget::move, mClient, &GomokuClient::sendMove);
             connect(mClient, &GomokuClient::newMove, gomoku, &GomokuWidget::positionPawn);
         });

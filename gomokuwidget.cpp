@@ -105,6 +105,9 @@ void GomokuWidget::resizeEvent(QResizeEvent *event)
 void GomokuWidget::mouseReleaseEvent(QMouseEvent *event)
 {
 //    mMap[3][5].setState(Pawn::BLACK);
+    if (current != initColor) {
+        return;
+    }
     QPoint clicked = Map::pointForPosition(event->pos(), this->rect());
     if (clicked == QPoint(-1, -1)) {
         return;
@@ -119,6 +122,7 @@ void GomokuWidget::positionPawn(QPoint position)
 
     if (hasWon()) {
         qDebug() << "winner!" << current;
+        emit win(current == initColor);
     }
 
     // flip

@@ -10,7 +10,10 @@ GomokuServer::GomokuServer(QObject* parent) :
 void GomokuServer::start()
 {
     mServer = new QTcpServer();
-    qInfo() << "listen" << mServer.data()->listen(QHostAddress::Any, 8888);
+    if (!mServer.data()->listen(QHostAddress::Any, 8888)){
+        emit error("Can not listen.");
+        deleteLater();
+    }
 
 //    mServer.data()->waitForNewConnection();
     connect(mServer.data(), &QTcpServer::newConnection, this, &GomokuServer::onNewConnection);
@@ -61,7 +64,7 @@ void GomokuServer::onNewConnection()
 void GomokuServer::sendMove(const QPoint& position)
 {
     if (mSocket) {
-        qInfo() << "send move data";
+//        qInfo() << "send move data";
         QJsonObject obj;
         obj["msgType"] = "move";
         obj["x"] = position.x();

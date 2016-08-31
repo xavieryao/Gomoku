@@ -27,19 +27,20 @@ public:
     bool hasHeightForWidth() const {return true;}
     int heightForWidth(int w) const {return w;}
 
-    void setColor(Pawn::State color) {current = color;}
+    void setInitColor(Pawn::State color) {initColor = color;}
 
     QPoint pointForPosition();
 
 signals:
     void move(const QPoint & position);
-    void win(Pawn::State color);
+    void win(bool you);
 
 private:
     Map mMap;
     qreal mPawnWidth = 0;
 
     Pawn::State current = Pawn::BLACK;
+    Pawn::State initColor = Pawn::NONE;
 
     bool hasWon();
     bool test(QPoint position);

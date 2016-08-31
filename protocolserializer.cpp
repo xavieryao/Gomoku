@@ -20,34 +20,34 @@ void ProtocolSerializer::setSocket(QTcpSocket *value)
 void ProtocolSerializer::readyToRead()
 {
     buffer.append(socket->readAll());
-    qInfo("read from socket");
-    qInfo() << "read " << buffer.size() << "bytes.";
+//    qInfo("read from socket");
+//    qInfo() << "read " << buffer.size() << "bytes.";
     qInfo() << QString(buffer);
     QString str = buffer;
     int size = 0;
     while(str.contains(HEADER)) {
         str.remove(0, HEADER_LEN);
-        qInfo() << "has header";
+//        qInfo() << "has header";
 //        size += HEADER_LEN;
         QStringList list = str.split('\n');
         if (list.size()==0) {
             break;
         }
         int lengthSize = list.at(0).size() + 1;
-        qInfo() << "has length. field size: " << lengthSize;
+//        qInfo() << "has length. field size: " << lengthSize;
         str.remove(0, lengthSize); // remove '[contentLength]\n'
         int contentSize = list.at(0).toInt();
-        qInfo() << "read content size:" << contentSize;
+//        qInfo() << "read content size:" << contentSize;
         if (str.size() < contentSize) {
             break;
         }
         QString content = str.remove(contentSize);
-        qInfo() << "read content:" << content;
+//        qInfo() << "read content:" << content;
         parseMsg(content);
         size += HEADER_LEN;
         size += lengthSize;
         size += contentSize;
-        qInfo() << "size to remove:" << size;
+//        qInfo() << "size to remove:" << size;
     }
     buffer.remove(0, size);
 }
@@ -61,7 +61,7 @@ void ProtocolSerializer::parseMsg(QString &msg)
         int x = obj["x"].toInt();
         int y = obj["y"].toInt();
         QPoint point(x, y);
-        qInfo() << "move parsed " << point;
+//        qInfo() << "move parsed " << point;
         emit moveParsed(point);
         return;
     }
