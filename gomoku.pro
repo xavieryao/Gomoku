@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,11 +14,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         gomokuwidget.cpp \
-    pawn.cpp
+    pawn.cpp \
+    mainwindow.cpp \
+    gomokuserver.cpp \
+    gomokuclient.cpp
 
 HEADERS  += gomokuwidget.h \
     pawn.h \
-    map.h
+    map.h \
+    mainwindow.h \
+    gomokuserver.h \
+    gomokuclient.h
 
 RESOURCES += \
     res.qrc

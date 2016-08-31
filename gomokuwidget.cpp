@@ -376,30 +376,6 @@ bool GomokuWidget::test(QPoint position)
     int result = 0;
 
     result = result | goodDirections(position);
-//    if (result > 0) qDebug() << QString::number(result, 2);
-//    result = result | goodDirections(QPoint(position.x()-1, position.y()-1));
-//    if (result > 0) qDebug() << QString::number(result, 2);
-
-//    result = result | goodDirections(QPoint(position.x(), position.y()-1));
-//    if (result > 0) qDebug() << QString::number(result, 2);
-
-//    result = result | goodDirections(QPoint(position.x()+1, position.y()-1));
-//    if (result > 0) qDebug() << QString::number(result, 2);
-
-//    result = result | goodDirections(QPoint(position.x()+1, position.y()));
-//    if (result > 0) qDebug() << QString::number(result, 2);
-
-//    result = result | goodDirections(QPoint(position.x()+1, position.y()+1));
-//    if (result > 0) qDebug() << QString::number(result, 2);
-
-//    result = result | goodDirections(QPoint(position.x(), position.y()+1));
-//    if (result > 0) qDebug() << QString::number(result, 2);
-
-//    result = result | goodDirections(QPoint(position.x()-1, position.y()+1));
-//    if (result > 0) qDebug() << QString::number(result, 2);
-
-//    result = result | goodDirections(QPoint(position.x()-1, position.y()));
-//    if (result > 0) qDebug() << QString::number(result, 2);
 
 
     int rrr = result;

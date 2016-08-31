@@ -36,7 +36,7 @@ private:
     Map mMap;
     qreal mPawnWidth = 0;
 
-    Pawn::State current = Pawn::WHITE;
+    Pawn::State current = Pawn::BLACK;
 
     void positionPawn(QPoint position);
     bool hasWon();
