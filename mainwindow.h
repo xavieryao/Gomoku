@@ -21,8 +21,8 @@ private:
     void setupClient(QWidget* clientWidget);
 
     QHostAddress localAddress();
-    QPointer<GomokuServer> server;
-    GomokuClient* client = 0;
+    QPointer<GomokuServer> mServer;
+    GomokuClient* mClient = 0;
 };
 
 #endif // MAINWINDOW_H

@@ -19,6 +19,7 @@ void GomokuClient::start()
         emit error(socket.data()->errorString());
         qDebug() << "socket error:" << socket.data()->errorString();
         quit();
+        deleteLater();
     });
 
     connect(this, &QObject::destroyed, this, &GomokuClient::quit);
@@ -41,4 +42,6 @@ void GomokuClient::quit()
         socket.data()->close();
         socket.data()->deleteLater();
     }
+
+//    deleteLater();
 }

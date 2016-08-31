@@ -37,10 +37,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     tab->addTab(serverWidget, tr("Server"));
     tab->addTab(clientWidget, tr("Client"));
 
-    centralLayout->addWidget(gomoku, 6);
-    centralLayout->addWidget(sideBar, 4);
+    centralLayout->addWidget(gomoku, 12);
+    centralLayout->addWidget(sideBar, 9);
     setCentralWidget(centralWidget);
-    resize(600, 360);
+    resize(650, 360);
 }
 
 void MainWindow::setupServer(QWidget *serverWidget)
@@ -55,31 +55,31 @@ void MainWindow::setupServer(QWidget *serverWidget)
     connect(startServer, &QPushButton::clicked, [=]{
 
         statusLabel->setText("");
-        if (server) {
-            server.data()->quit();
+        if (mServer) {
+            mServer.data()->quit();
         }
-        server = new GomokuServer();
-        connect(server.data(), &GomokuServer::error, [=](const QString error){
+        mServer = new GomokuServer();
+        connect(mServer.data(), &GomokuServer::error, [=](const QString error){
 //            cancel->setEnabled(true);
             statusLabel->setText(error);
             startServer->setText(tr("Start Server"));
             startServer->setEnabled(true);
             cancel->setEnabled(false);
         });
-        connect(server.data(), &GomokuServer::socketCreated, [=](const QString client){
+        connect(mServer.data(), &GomokuServer::socketCreated, [=](const QString client){
             statusLabel->setText(tr("Client %1 Connected.").arg(client));
             startServer->setText(tr("Connected"));
         });
         startServer->setText(tr("Listening..."));
         startServer->setEnabled(false);
         cancel->setEnabled(true);
-        server.data()->start();
+        mServer.data()->start();
 
     });
 
     connect(cancel, &QPushButton::clicked, [=]{
-        if (server) {
-            server.data()->quit();
+        if (mServer) {
+            mServer.data()->quit();
         }
         startServer->setText(tr("Start Server"));
         startServer->setEnabled(true);
@@ -99,16 +99,47 @@ void MainWindow::setupClient(QWidget* clientWidget)
     QLabel* ipLabel = new QLabel(this);
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
     QLineEdit* serverIp = new QLineEdit(tr("127.0.0.1"), this);
+    QLabel* statusLabel = new QLabel(this);
     QPushButton* connectToServer = new QPushButton(tr("Connect To Server"), this);
+    QPushButton* cancel = new QPushButton(tr("Disconnect"), this);
+    cancel->setEnabled(false);
     connect(connectToServer, &QPushButton::clicked, [=]{
-        if (!client) {
-            client = new GomokuClient(serverIp->text());
+        if (mClient) {
+            mClient->quit();
         }
-        client->start();
+        statusLabel->setText("");
+        mClient = new GomokuClient(serverIp->text());
+
+        connect(mClient, &GomokuClient::connected, [=]{
+            connectToServer->setText(tr("Connected"));
+        });
+
+        connect(mClient, &GomokuClient::error, [=](const QString err){
+            statusLabel->setText(err);
+            cancel->setEnabled(false);
+            connectToServer->setEnabled(true);
+        });
+
+        connectToServer->setText(tr("Connecting..."));
+        connectToServer->setEnabled(false);
+        cancel->setEnabled(true);
+        mClient->start();
     });
+
+    connect(cancel, &QPushButton::clicked, [=]{
+        if (mClient) {
+            mClient->quit();
+        }
+        connectToServer->setText(tr("Connect To Server"));
+        connectToServer->setEnabled(true);
+        cancel->setEnabled(false);
+    });
+
     layout->addWidget(ipLabel);
+    layout->addWidget(statusLabel);
     layout->addWidget(serverIp);
     layout->addWidget(connectToServer);
+    layout->addWidget(cancel);
 }
 
 QHostAddress MainWindow::localAddress()

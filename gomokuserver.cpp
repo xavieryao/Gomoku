@@ -18,6 +18,7 @@ void GomokuServer::start()
        qDebug() << "accept error:" << mServer.data()->errorString();
        emit error(mServer.data()->errorString());
        quit();
+       deleteLater();
     });
 
     connect(this, &QObject::destroyed, this, &GomokuServer::quit);
@@ -38,7 +39,7 @@ void GomokuServer::quit()
         mSocket.data()->deleteLater();
     }
 
-    this->deleteLater();
+//    this->deleteLater();
 }
 
 void GomokuServer::onNewConnection()
