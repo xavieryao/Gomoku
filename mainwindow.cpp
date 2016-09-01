@@ -79,13 +79,15 @@ void MainWindow::setupServer()
     serverWidget->setLayout(layout);
     QLabel* ipLabel = new QLabel(serverWidget);
     QPointer<QLabel> statusLabel = new QLabel(serverWidget);
-//    QLineEdit* nick = new QLabel(this);
-//    nick->setPlaceholderText(tr("Nickname"));
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
     QPointer<QPushButton> cancel = new QPushButton(tr("Stop Server"), serverWidget);
     cancel->setEnabled(false);
     QPointer<QPushButton> startServer = new QPushButton(tr("Start Server"), serverWidget);
     QPushButton* nextBtn = new QPushButton(tr("Next Game"),serverWidget);
+    QLineEdit* port = new QLineEdit("8888", serverWidget);
+    port->setInputMask("0000");
+    port->setPlaceholderText(tr("Port"));
+    port->setWhatsThis(tr("Port"));
 
     connect(startServer, &QPushButton::clicked, [=]{
 
@@ -93,7 +95,7 @@ void MainWindow::setupServer()
         if (mServer) {
             mServer.data()->deleteLater();
         }
-        mServer = new GomokuServer();
+        mServer = new GomokuServer(port->text().toInt());
         mServer->setSerializer(mServerSerializer);
 
         lockTab = 1;
@@ -116,6 +118,7 @@ void MainWindow::setupServer()
             startServer->setEnabled(true);
             cancel->setEnabled(false);
             lockTab = 0;
+            port->setEnabled(false);
         });
         connect(mServer.data(), &GomokuServer::connected, [=](const QString peer){
             statusLabel->setText(tr("Client %1 Connected.").arg(peer));
@@ -146,10 +149,12 @@ void MainWindow::setupServer()
                 cancel->setEnabled(false);
             }
             lockTab = 0;
+            port->setEnabled(true);
         });
         startServer->setText(tr("Listening..."));
         startServer->setEnabled(false);
         cancel->setEnabled(true);
+        port->setEnabled(false);
         mServer.data()->start();
 
     });
@@ -162,6 +167,7 @@ void MainWindow::setupServer()
         startServer->setEnabled(true);
         statusLabel->setText("");
         cancel->setEnabled(false);
+        port->setEnabled(true);
         lockTab = 0;
     });
 
@@ -181,6 +187,7 @@ void MainWindow::setupServer()
     layout->addWidget(ipLabel);
     layout->addWidget(statusLabel);
 //    layout->addWidget(nick);
+    layout->addWidget(port);
     layout->addWidget(nextBtn);
     layout->addWidget(startServer);
     layout->addWidget(cancel);
@@ -195,7 +202,13 @@ void MainWindow::setupClient()
     QLabel* ipLabel = new QLabel(clientWidget);
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
 
-    QLineEdit* serverIp = new QLineEdit(tr("127.0.0.1"), clientWidget);
+    QLineEdit* serverIp = new QLineEdit("127.0.0.1", clientWidget);
+//    serverIp->setInputMask("000.000.000.000");
+    QLineEdit* port = new QLineEdit("8888", clientWidget);
+    port->setInputMask("0000");
+    port->setPlaceholderText(tr("Port"));
+    port->setWhatsThis(tr("Port"));
+
     QPointer<QLabel> statusLabel = new QLabel(clientWidget);
     QPointer<QPushButton> connectToServer = new QPushButton(tr("Connect To Server"), clientWidget);
     QPointer<QPushButton> cancel = new QPushButton(tr("Disconnect"), clientWidget);
@@ -211,11 +224,12 @@ void MainWindow::setupClient()
             mClient.data()->deleteLater();
         }
         statusLabel->setText("");
-        mClient = new GomokuClient(serverIp->text());
+        mClient = new GomokuClient(serverIp->text(), port->text().toInt());
         mClient->setSerializer(mClientSerializer);
 
         keyboard->setEnabled(false);
         lockTab = 2;
+        port->setEnabled(false);
         serverIp->setEnabled(false);
 
         connect(mClient, &GomokuAbsHost::nextGame, [=] {
@@ -254,6 +268,7 @@ void MainWindow::setupClient()
             gomoku->setEnabled(false);
             connectToServer->setText(tr("Connect To Server"));
 
+            port->setEnabled(true);
             lockTab = 0;
             keyboard->setEnabled(true);
             serverIp->setEnabled(true);
@@ -269,6 +284,7 @@ void MainWindow::setupClient()
            connectToServer->setText(tr("Connect To Server"));
            gomoku->setEnabled(false);
            lockTab = 0;
+           port->setEnabled(true);
            keyboard->setEnabled(true);
            serverIp->setEnabled(true);
         });
@@ -291,6 +307,7 @@ void MainWindow::setupClient()
         lockTab = 0;
         keyboard->setEnabled(true);
         serverIp->setEnabled(true);
+        port->setEnabled(true);
     });
 
     nextBtn->setVisible(false);
@@ -309,6 +326,7 @@ void MainWindow::setupClient()
     layout->addWidget(ipLabel);
     layout->addWidget(statusLabel);
     layout->addWidget(serverIp);
+    layout->addWidget(port);
     layout->addWidget(keyboard);
     layout->addWidget(nextBtn);
     layout->addWidget(connectToServer);

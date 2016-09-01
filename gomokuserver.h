@@ -10,12 +10,13 @@ class GomokuServer : public GomokuAbsHost
 {
     Q_OBJECT
 public:
-    GomokuServer(QObject* parent = 0);
+    GomokuServer(int port, QObject* parent = 0);
     ~GomokuServer();
     void start() override;
 
 private:
     QPointer<QTcpServer> mServer;
+    int port;
 
 private slots:
     void onNewConnection();

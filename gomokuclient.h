@@ -9,7 +9,7 @@ class GomokuClient : public GomokuAbsHost
 {
     Q_OBJECT
 public:
-    GomokuClient(QString server, QObject* parent = 0);
+    GomokuClient(QString server, int port, QObject* parent = 0);
     ~GomokuClient();
 
     QString& getServer();
@@ -20,6 +20,7 @@ public:
 
 private:
     QString server;
+    int port;
 };
 
 #endif // GOMOKUCLIENT_H

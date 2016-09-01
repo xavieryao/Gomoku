@@ -1,7 +1,8 @@
 #include "gomokuserver.h"
 
-GomokuServer::GomokuServer(QObject* parent) :
-    GomokuAbsHost(parent)
+GomokuServer::GomokuServer(int port, QObject* parent) :
+    GomokuAbsHost(parent),
+    port(port)
 {
 }
 
@@ -9,7 +10,7 @@ GomokuServer::GomokuServer(QObject* parent) :
 void GomokuServer::start()
 {
     mServer = new QTcpServer();
-    if (!mServer.data()->listen(QHostAddress::Any, 8888)){
+    if (!mServer.data()->listen(QHostAddress::Any, port)){
         emit error("Can not listen.");
         deleteLater();
     }

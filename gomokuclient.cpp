@@ -1,9 +1,10 @@
 #include "gomokuclient.h"
 #include <QDebug>
 
-GomokuClient::GomokuClient(QString server, QObject* parent):
+GomokuClient::GomokuClient(QString server, int port, QObject* parent):
     GomokuAbsHost(parent),
-    server(server)
+    server(server),
+    port(port)
 {
 }
 
@@ -11,7 +12,7 @@ GomokuClient::GomokuClient(QString server, QObject* parent):
 void GomokuClient::start()
 {
     mSocket = new QTcpSocket();
-    mSocket.data()->connectToHost(QHostAddress(server), 8888);
+    mSocket.data()->connectToHost(QHostAddress(server), port);
     connect(mSocket.data(), &QTcpSocket::connected, [=]{
         mSerializer->setSocket(mSocket);
     });
