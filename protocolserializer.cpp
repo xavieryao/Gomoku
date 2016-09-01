@@ -80,5 +80,6 @@ QByteArray ProtocolSerializer::serialize(QJsonObject msg)
     bytes += QString::number(json.length());
     bytes += '\n';
     bytes += json;
+    qDebug() << QString(bytes);
     return bytes;
 }

@@ -19,13 +19,6 @@ public:
     GomokuWidget(QWidget *parent = 0);
     ~GomokuWidget();
 
-    void paintEvent(QPaintEvent* event);
-    void drawBackground(QPainter* painter, const QRectF &rect);
-    void resizeEvent(QResizeEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-
-    bool hasHeightForWidth() const {return true;}
-    int heightForWidth(int w) const {return w;}
 
     void setInitColor(Pawn::State color) {initColor = color;}
 
@@ -40,6 +33,19 @@ public:
 
     QString initColorStr(bool revert = false) const;
     bool isYourTurn() const;
+
+    bool getShowHint() const;
+    void setShowHint(bool showHint);
+
+protected:
+
+    void paintEvent(QPaintEvent* event);
+    void drawBackground(QPainter* painter, const QRectF &rect);
+    void resizeEvent(QResizeEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
+    bool hasHeightForWidth() const {return true;}
+    int heightForWidth(int w) const {return w;}
 
 signals:
     void move(const QPoint & position);
@@ -64,6 +70,9 @@ private:
     const int BACK_CROSS = CROSS << 1;
 
     QList<QPoint> hintList;
+    QPixmap hintPix;
+
+    bool mShowHint;
 
 public slots:
     void positionPawn(QPoint position);

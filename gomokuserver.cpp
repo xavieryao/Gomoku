@@ -18,7 +18,6 @@ void GomokuServer::start()
     connect(mServer.data(), &QTcpServer::newConnection, this, &GomokuServer::onNewConnection);
 
     connect(mServer.data(), &QTcpServer::acceptError, [=]{
-       qInfo() << "accept error:" << mServer.data()->errorString();
        emit error(mServer.data()->errorString());
        deleteLater();
     });
@@ -28,7 +27,6 @@ void GomokuServer::start()
 
 GomokuServer::~GomokuServer()
 {
-    qInfo() << "clean up server";
     if (mServer) {
         mServer.data()->close();
         mServer.data()->deleteLater();
@@ -48,13 +46,10 @@ void GomokuServer::onNewConnection()
     mSocket = mServer.data()->nextPendingConnection();
     mServer->pauseAccepting();
     emit connected(mSocket->peerAddress().toString());
-    qInfo() << "new connection from " << mSocket.data()->peerAddress().toString();
-    qInfo() << "local port" << mSocket->localPort();
     mSerializer->setSocket(mSocket);
     connect(mSocket, &QTcpSocket::readyRead, mSerializer, &ProtocolSerializer::readyToRead);
     connect(mSocket.data(), &QTcpSocket::disconnected, [=]{
         emit disconnected();
-        qInfo() << "disconnected.";
         deleteLater();
     });
 

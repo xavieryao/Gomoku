@@ -5,6 +5,7 @@
 #include <QtNetwork>
 #include <QTabWidget>
 #include <QLabel>
+#include <QPushButton>
 #include "gomokuserver.h"
 #include "gomokuclient.h"
 #include "gomokuwidget.h"
@@ -15,6 +16,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = 0);
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 signals:
 
@@ -35,6 +37,7 @@ private:
 
     QLabel* mPlayer;
     QLabel* mTurn;
+    QPushButton* mHint;
 
     ProtocolSerializer* mClientSerializer;
     ProtocolSerializer* mServerSerializer;

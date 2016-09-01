@@ -11,6 +11,8 @@ GomokuWidget::GomokuWidget(QWidget *parent)
         QVector<Pawn> vec(15);
         mMap.append(vec);
     }
+
+    hintPix = QPixmap(":/img/bomb");
 }
 
 GomokuWidget::~GomokuWidget()
@@ -73,6 +75,7 @@ void GomokuWidget::paintEvent(QPaintEvent *event)
     qreal pawnWidth = blockWidth*0.4;
     if (pawnWidth != mPawnWidth) {
         mPawnWidth = pawnWidth;
+        hintPix = hintPix.scaled(pawnWidth*2, pawnWidth*2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     }
 
     for (int i = 0; i < 15; i++) {
@@ -83,16 +86,18 @@ void GomokuWidget::paintEvent(QPaintEvent *event)
     }
 
     // draw hint
-    painter.save();
-    for (auto& hint: hintList) {
-        QPointF point = Map::positionForPoint(hint, this->rect());
-        QPen pen(Qt::red);
-//        pen.setWidth(5);
-        painter.setPen(pen);
-        painter.setBrush(Qt::NoBrush);
-        painter.drawEllipse(point, pawnWidth, pawnWidth);
+    if (mShowHint && current == initColor) {
+        painter.save();
+
+        for (auto& hint: hintList) {
+            QPointF point = Map::positionForPoint(hint, this->rect());
+            point.setX(point.x() - pawnWidth);
+            point.setY(point.y() - pawnWidth);
+            painter.drawPixmap(point, hintPix);
+        }
+        painter.restore();
     }
-    painter.restore();
+
 }
 
 void GomokuWidget::resizeEvent(QResizeEvent *event)
@@ -384,6 +389,17 @@ int GomokuWidget::goodDirections(QPoint position)
     return result;
 }
 
+bool GomokuWidget::getShowHint() const
+{
+    return mShowHint;
+}
+
+void GomokuWidget::setShowHint(bool showHint)
+{
+    mShowHint = showHint;
+    update();
+}
+
 bool GomokuWidget::test(QPoint position)
 {
     int result = 0;
@@ -424,6 +440,8 @@ void GomokuWidget::reset() {
             mMap[i][j].setState(Pawn::NONE);
         }
     }
+    hintList.clear();
+
 }
 
 void GomokuWidget::nextGame()

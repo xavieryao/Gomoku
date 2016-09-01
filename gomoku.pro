@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     gomokuserver.cpp \
     gomokuclient.cpp \
     protocolserializer.cpp \
-    gomokuabshost.cpp
+    gomokuabshost.cpp \
+    softkeyboard.cpp
 
 HEADERS  += gomokuwidget.h \
     pawn.h \
@@ -28,7 +29,8 @@ HEADERS  += gomokuwidget.h \
     gomokuserver.h \
     gomokuclient.h \
     protocolserializer.h \
-    gomokuabshost.h
+    gomokuabshost.h \
+    softkeyboard.h
 
 RESOURCES += \
     res.qrc

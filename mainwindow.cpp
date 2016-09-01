@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QtNetwork>
 #include "gomokuwidget.h"
+#include "softkeyboard.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -35,6 +36,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     mPlayer = new QLabel(this);
     mTurn = new QLabel(this);
+    mHint = new QPushButton(tr("Alert Danger"), this);
+    mHint->installEventFilter(this);
+    mHint->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     setupServer();
     setupClient();
@@ -59,12 +63,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     lay->addWidget(mPlayer);
     lay->addWidget(mTurn);
+    lay->addWidget(mHint);
     lay->addWidget(mTab);
 
-    centralLayout->addWidget(gomoku, 12);
-    centralLayout->addWidget(sideBar, 9);
+    centralLayout->addWidget(gomoku, 3);
+    centralLayout->addWidget(sideBar, 1);
     setCentralWidget(centralWidget);
-    resize(650, 360);
+    resize(800, 530);
 }
 
 void MainWindow::setupServer()
@@ -94,7 +99,6 @@ void MainWindow::setupServer()
         lockTab = 1;
 
         connect(mServer, &GomokuAbsHost::nextGame, [=] {
-            qDebug() << "hide";
             mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr(true)));
             if (gomoku->isYourTurn()) {
                 mTurn->setText(tr("Your turn."));
@@ -117,6 +121,7 @@ void MainWindow::setupServer()
             statusLabel->setText(tr("Client %1 Connected.").arg(peer));
             startServer->setText(tr("Connected"));
             gomoku->setInitColor(Pawn::BLACK);
+            gomoku->reset();
             mPlayer->setText(tr("Your color: %1").arg(gomoku->initColorStr()));
             if (gomoku->isYourTurn()) {
                 mTurn->setText(tr("Your turn."));
@@ -125,6 +130,7 @@ void MainWindow::setupServer()
             }
             connect(gomoku, &GomokuWidget::move, mServer, &GomokuServer::sendMove);
             connect(mServer, &GomokuServer::newMove, gomoku, &GomokuWidget::positionPawn);
+            connect(mServer, &GomokuAbsHost::nextGame, gomoku, &GomokuWidget::nextGame);
             lockTab = 1;
         });
 
@@ -188,10 +194,15 @@ void MainWindow::setupClient()
     QVBoxLayout* layout = new QVBoxLayout(clientWidget);
     QLabel* ipLabel = new QLabel(clientWidget);
     ipLabel->setText(tr("Local IP:%1").arg(localAddress().toString()));
+
     QLineEdit* serverIp = new QLineEdit(tr("127.0.0.1"), clientWidget);
     QPointer<QLabel> statusLabel = new QLabel(clientWidget);
     QPointer<QPushButton> connectToServer = new QPushButton(tr("Connect To Server"), clientWidget);
     QPointer<QPushButton> cancel = new QPushButton(tr("Disconnect"), clientWidget);
+
+    SoftKeyboard* keyboard = new SoftKeyboard(clientWidget);
+    keyboard->setLineEdit(serverIp);
+
     cancel->setEnabled(false);
     QPushButton* nextBtn = new QPushButton(tr("Next Game"),clientWidget);
 
@@ -203,7 +214,9 @@ void MainWindow::setupClient()
         mClient = new GomokuClient(serverIp->text());
         mClient->setSerializer(mClientSerializer);
 
-        lockTab = 0;
+        keyboard->setEnabled(false);
+        lockTab = 2;
+        serverIp->setEnabled(false);
 
         connect(mClient, &GomokuAbsHost::nextGame, [=] {
             nextBtn->setVisible(false);
@@ -240,11 +253,13 @@ void MainWindow::setupClient()
             connectToServer->setEnabled(true);
             gomoku->setEnabled(false);
             connectToServer->setText(tr("Connect To Server"));
+
             lockTab = 0;
+            keyboard->setEnabled(true);
+            serverIp->setEnabled(true);
         });
 
         connect(mClient.data(), &GomokuClient::disconnected, [=]{
-            qDebug() << "disconn";
            if (!statusLabel || !cancel || !connectToServer) {
                return;
            }
@@ -254,6 +269,8 @@ void MainWindow::setupClient()
            connectToServer->setText(tr("Connect To Server"));
            gomoku->setEnabled(false);
            lockTab = 0;
+           keyboard->setEnabled(true);
+           serverIp->setEnabled(true);
         });
 
         connectToServer->setText(tr("Connecting..."));
@@ -272,6 +289,8 @@ void MainWindow::setupClient()
         cancel->setEnabled(false);
         gomoku->setEnabled(false);
         lockTab = 0;
+        keyboard->setEnabled(true);
+        serverIp->setEnabled(true);
     });
 
     nextBtn->setVisible(false);
@@ -290,6 +309,7 @@ void MainWindow::setupClient()
     layout->addWidget(ipLabel);
     layout->addWidget(statusLabel);
     layout->addWidget(serverIp);
+    layout->addWidget(keyboard);
     layout->addWidget(nextBtn);
     layout->addWidget(connectToServer);
     layout->addWidget(cancel);
@@ -307,4 +327,18 @@ QHostAddress MainWindow::localAddress()
         }
     }
     return QHostAddress(QHostAddress::LocalHost);
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        gomoku->setShowHint(true);
+        event->accept();
+        return false;
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        gomoku->setShowHint(false);
+        event->accept();
+        return false;
+    }
+    return QMainWindow::eventFilter(watched, event);
 }
